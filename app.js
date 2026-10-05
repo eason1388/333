@@ -75,7 +75,14 @@ $('font-down').addEventListener('click',()=>setScale(state.scale-.1));$('font-up
 $('toc-open').addEventListener('click',openToc);$('toc-close').addEventListener('click',closeToc);ui.scrim.addEventListener('click',closeToc);
 $('help-open').addEventListener('click',()=>ui.dialog.showModal());$('help-close').addEventListener('click',()=>ui.dialog.close());
 ui.dialog.addEventListener('click',event=>{if(event.target===ui.dialog)ui.dialog.close();});
-document.addEventListener('keydown',event=>{if(event.key==='Escape')closeToc();if(event.target instanceof HTMLInputElement||ui.dialog.open)return;if(event.key==='ArrowLeft')step(-1);if(event.key==='ArrowRight')step(1);});
+document.addEventListener('keydown',event=>{if(event.key==='Escape')closeToc();if(!$('chart-workspace').hidden||event.target instanceof HTMLInputElement||ui.dialog.open)return;if(event.key==='ArrowLeft')step(-1);if(event.key==='ArrowRight')step(1);});
+window.addEventListener('open-ebook-entry',event=>{
+  const {id,star}=event.detail||{};
+  if(!state.entries.some(entry=>entry.id===id))return;
+  state.star=star;state.group='all';state.query='';ui.search.value='';
+  localStorage.setItem('ziwei-reader-star',star);
+  updateResults(false);renderStars();selectEntry(id,true);
+});
 
 async function start(){
   setScale(state.scale);

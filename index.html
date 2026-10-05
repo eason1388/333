@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#19142b">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="description" content="《紫微斗數全書》十四主星分類索引：古書原文、白話翻譯與判讀條件。">
+  <meta name="description" content="《紫微斗數全書》十四主星分類索引與命盤核對：1,335 筆古書原文、白話翻譯、出生資料排盤及文墨天機文字盤對照。">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" href="./apple-touch-icon.png">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='13' fill='%2319142b'/%3E%3Crect x='7' y='7' width='50' height='50' rx='8' fill='none' stroke='%23eac578' stroke-width='2'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-size='38' font-family='serif' fill='%23f7efd9'%3E紫%3C/text%3E%3C/svg%3E">
@@ -28,9 +28,14 @@
       </div>
     </header>
 
+    <nav class="view-tabs" aria-label="電子書功能">
+      <button type="button" id="view-reader" aria-current="page">原文閱讀</button>
+      <button type="button" id="view-chart">命盤核對</button>
+    </nav>
+
     <div class="star-strip" id="star-strip" role="navigation" aria-label="十四主星"></div>
 
-    <div class="workspace">
+    <div class="workspace" id="reader-workspace">
       <div class="mobile-scrim" id="mobile-scrim" hidden></div>
       <aside class="toc" id="toc" aria-label="原句目錄">
         <div class="toc-head">
@@ -69,15 +74,59 @@
         <p class="scope-note" id="scope-note"></p>
       </main>
     </div>
+
+    <main class="chart-workspace" id="chart-workspace" hidden>
+      <div class="chart-title">
+        <span class="eyebrow">CHART × CLASSICS</span>
+        <h1>命盤對照古書原句</h1>
+        <p>輸入出生資料先取得參考盤；若要以文墨天機為準，可貼入它的「AI 描述」文字盤。系統只列出能指明宮位、同宮、地支等具體條件的原句，並交代對上的地方。</p>
+      </div>
+      <div class="chart-layout">
+        <div class="chart-inputs">
+          <section class="chart-panel">
+            <h2>出生資料</h2>
+            <form id="chart-form" class="chart-form">
+              <label>曆法<select id="birth-calendar"><option value="solar">國曆</option><option value="lunar">農曆</option></select></label>
+              <label><span id="birth-date-label">出生日期</span><input id="birth-date" type="date" required></label>
+              <label>出生時間<input id="birth-time" type="time" required></label>
+              <label>性別<select id="birth-gender" required><option value="">請選擇</option><option value="男">男</option><option value="女">女</option></select></label>
+              <label class="leap-option" id="leap-option" hidden><input id="birth-leap" type="checkbox">農曆閏月</label>
+              <button class="primary-action" type="submit">排盤並比對原文</button>
+            </form>
+            <p class="input-note">自動排盤採開源排盤規則，以輸入的鐘錶時間計算；閏月、晚子時、真太陽時及文墨天機的自訂設定可能不同。未匯入文墨文字盤前，結果會標為「參考」，不當作已核對。</p>
+          </section>
+          <section class="chart-panel wenmo-panel">
+            <h2>以文墨天機原盤核對</h2>
+            <p>在文墨天機使用「AI 描述／文字命盤」，複製完整文字貼在下方；前面的分析提示詞會自動忽略。也可選取文字檔。命盤只在你的瀏覽器內處理，不會儲存出生資料。</p>
+            <label class="visually-hidden" for="wenmo-text">文墨天機文字命盤</label>
+            <textarea id="wenmo-text" rows="7" placeholder="貼上從『文墨天機紫微斗數命盤』開始、包含命盤十二宮的文字…"></textarea>
+            <div class="wenmo-actions"><label class="file-pick">選取 .txt 檔<input id="wenmo-file" type="file" accept=".txt,text/plain"></label><button class="primary-action" type="button" id="wenmo-import">匯入並核對</button></div>
+          </section>
+        </div>
+        <div class="chart-output">
+          <div id="chart-status" class="chart-status" role="status" aria-live="polite">請輸入出生資料，或貼上文墨天機文字命盤。</div>
+          <section id="chart-result" hidden>
+            <div class="chart-summary" id="chart-summary"></div>
+            <div class="chart-grid" id="chart-grid" aria-label="十二宮星曜"></div>
+            <div class="match-heading"><div><span class="eyebrow">MATCHED PASSAGES</span><h2 id="match-title">符合條件的原句</h2></div><label>篩選主星<select id="match-star-filter"><option value="all">全部主星</option></select></label></div>
+            <p class="match-method" id="match-method"></p>
+            <div id="match-list" class="match-list"></div>
+            <button id="match-more" class="load-more" type="button" hidden>顯示更多原句</button>
+          </section>
+        </div>
+      </div>
+    </main>
   </div>
 
   <dialog id="help-dialog" class="help-dialog">
     <div class="dialog-head"><h2>閱讀說明</h2><button type="button" id="help-close" aria-label="關閉說明">關閉</button></div>
     <p>選擇主星後，可依「專論」或「散見」閱讀；也能搜尋原文、白話翻譯及判讀條件。</p>
     <p>每段左側是 Word 索引保留的古書原文，右側是對應的白話與使用條件。手機版改為上下排列，字級可用右上角調整。</p>
-    <p>本電子書收錄分類索引的 1,335 筆原句，並非《紫微斗數全書》各版本的全文。疾病、壽命、性別與階級等舊判語僅供文獻理解，不應當作現代事實預告。</p>
+    <p>「命盤核對」可輸入出生資料試排，或貼入文墨天機 AI 描述文字，以原盤的十二宮星曜逐筆檢查原文中可辨識的結構條件。結果會列出對上哪個宮位或星曜；只核對部分文字，不代表整句推斷成立。</p>
+    <p>本電子書收錄分類索引的 1,335 筆原句，並非《紫微斗數全書》各版本的全文。「命盤核對」只檢查可辨識的本命結構，不推算大限、流年或事件。疾病、壽命、性別與階級等舊判語僅供文獻理解，不應當作現代事實預告。</p>
     <p class="install-tip">iPhone 可在 Safari 的「分享」選單選擇「加入主畫面」，像 App 一樣開啟。</p>
   </dialog>
   <script type="module" src="./app.js"></script>
+  <script type="module" src="./chart-ui.js"></script>
 </body>
 </html>
