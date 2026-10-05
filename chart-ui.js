@@ -1,7 +1,7 @@
 import {parseWenmoText,chartFromIztro,compareCharts,matchEntries} from './chart-match.js';
 
 const $=id=>document.getElementById(id);
-const ui={readerTab:$('view-reader'),chartTab:$('view-chart'),reader:$('reader-workspace'),stars:$('star-strip'),chart:$('chart-workspace'),form:$('chart-form'),calendar:$('birth-calendar'),date:$('birth-date'),time:$('birth-time'),gender:$('birth-gender'),leap:$('birth-leap'),leapOption:$('leap-option'),paste:$('wenmo-text'),file:$('wenmo-file'),import:$('wenmo-import'),status:$('chart-status'),result:$('chart-result'),summary:$('chart-summary'),grid:$('chart-grid'),title:$('match-title'),method:$('match-method'),list:$('match-list'),filter:$('match-star-filter'),more:$('match-more')};
+const ui={readerTab:$('view-reader'),pureTab:$('view-pure'),chartTab:$('view-chart'),reader:$('reader-workspace'),stars:$('star-strip'),fullbook:$('fullbook-workspace'),chart:$('chart-workspace'),form:$('chart-form'),calendar:$('birth-calendar'),date:$('birth-date'),time:$('birth-time'),gender:$('birth-gender'),leap:$('birth-leap'),leapOption:$('leap-option'),paste:$('wenmo-text'),file:$('wenmo-file'),import:$('wenmo-import'),status:$('chart-status'),result:$('chart-result'),summary:$('chart-summary'),grid:$('chart-grid'),title:$('match-title'),method:$('match-method'),list:$('match-list'),filter:$('match-star-filter'),more:$('match-more')};
 let referenceChart=null;
 let wenmoChart=null;
 let allMatches=[];
@@ -12,13 +12,18 @@ let libraryPromise=null;
 function el(tag,cls,text){const node=document.createElement(tag);if(cls)node.className=cls;if(text!==undefined)node.textContent=text;return node;}
 function switchView(view){
   const chart=view==='chart';
-  ui.chart.hidden=!chart;ui.reader.hidden=chart;ui.stars.hidden=chart;
+  const fullbook=view==='fullbook';
+  ui.chart.hidden=!chart;ui.reader.hidden=view!=='reader';ui.stars.hidden=view!=='reader';ui.fullbook.hidden=!fullbook;
   ui.chartTab.setAttribute('aria-current',chart?'page':'false');
-  ui.readerTab.setAttribute('aria-current',chart?'false':'page');
+  ui.readerTab.setAttribute('aria-current',view==='reader'?'page':'false');
+  ui.pureTab.setAttribute('aria-current',fullbook?'page':'false');
   document.body.classList.toggle('chart-mode',chart);
+  document.body.classList.toggle('fullbook-mode',fullbook);
+  if(fullbook)window.dispatchEvent(new Event('fullbook-open'));
   window.scrollTo({top:0,behavior:'instant'});
 }
 ui.readerTab.addEventListener('click',()=>switchView('reader'));
+ui.pureTab.addEventListener('click',()=>switchView('fullbook'));
 ui.chartTab.addEventListener('click',()=>switchView('chart'));
 ui.calendar.addEventListener('change',()=>{
   const lunar=ui.calendar.value==='lunar';
