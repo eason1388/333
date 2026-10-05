@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#19142b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="《紫微斗數全書》十四主星分類索引：古書原文、白話翻譯與判讀條件。">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='13' fill='%2319142b'/%3E%3Crect x='7' y='7' width='50' height='50' rx='8' fill='none' stroke='%23eac578' stroke-width='2'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-size='38' font-family='serif' fill='%23f7efd9'%3E紫%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./styles.css">
+  <title>紫微斗數全書・十四主星電子書</title>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">紫</span>
+        <div><strong>紫微斗數全書</strong><small>十四主星・原文與白話</small></div>
+      </div>
+      <div class="top-actions">
+        <button class="icon-button mobile-only" id="toc-open" type="button" aria-label="開啟目錄">目錄</button>
+        <button class="text-button" id="font-down" type="button" aria-label="縮小閱讀文字">字－</button>
+        <button class="text-button" id="font-up" type="button" aria-label="放大閱讀文字">字＋</button>
+        <button class="icon-button" id="help-open" type="button" aria-label="閱讀說明">說明</button>
+      </div>
+    </header>
+
+    <div class="star-strip" id="star-strip" role="navigation" aria-label="十四主星"></div>
+
+    <div class="workspace">
+      <div class="mobile-scrim" id="mobile-scrim" hidden></div>
+      <aside class="toc" id="toc" aria-label="原句目錄">
+        <div class="toc-head">
+          <div><span class="eyebrow">INDEX</span><h2>原句目錄</h2></div>
+          <button class="icon-button mobile-only" id="toc-close" type="button" aria-label="關閉目錄">關閉</button>
+        </div>
+        <label class="search-wrap">
+          <span class="visually-hidden">搜尋原文及白話</span>
+          <input id="search" type="search" placeholder="搜尋原文、白話或判讀…" autocomplete="off">
+        </label>
+        <div class="group-filter" id="group-filter" role="group" aria-label="原句分類">
+          <button type="button" data-group="all" aria-pressed="true">全部</button>
+          <button type="button" data-group="dedicated" aria-pressed="false">專論</button>
+          <button type="button" data-group="scattered" aria-pressed="false">散見</button>
+        </div>
+        <div class="result-count" id="result-count" aria-live="polite">載入目錄中…</div>
+        <nav class="entry-list" id="entry-list" aria-label="原句列表"></nav>
+      </aside>
+
+      <main class="reader" id="reader" tabindex="-1">
+        <div class="reader-top">
+          <div id="reader-heading">
+            <span class="eyebrow">CLASSICAL TEXT · PLAIN READING</span>
+            <h1>正在載入古書原文…</h1>
+          </div>
+          <div class="reader-counter" id="reader-counter"></div>
+        </div>
+        <div class="source-line" id="source-line"></div>
+        <div class="column-head" aria-hidden="true"><span>古籍原文</span><span>白話翻譯・判讀</span></div>
+        <div class="passages" id="passages" aria-live="polite"></div>
+        <div class="reader-nav">
+          <button type="button" id="prev-entry">上一篇</button>
+          <span id="page-count"></span>
+          <button type="button" id="next-entry">下一篇</button>
+        </div>
+        <p class="scope-note" id="scope-note"></p>
+      </main>
+    </div>
+  </div>
+
+  <dialog id="help-dialog" class="help-dialog">
+    <div class="dialog-head"><h2>閱讀說明</h2><button type="button" id="help-close" aria-label="關閉說明">關閉</button></div>
+    <p>選擇主星後，可依「專論」或「散見」閱讀；也能搜尋原文、白話翻譯及判讀條件。</p>
+    <p>每段左側是 Word 索引保留的古書原文，右側是對應的白話與使用條件。手機版改為上下排列，字級可用右上角調整。</p>
+    <p>本電子書收錄分類索引的 1,335 筆原句，並非《紫微斗數全書》各版本的全文。疾病、壽命、性別與階級等舊判語僅供文獻理解，不應當作現代事實預告。</p>
+    <p class="install-tip">iPhone 可在 Safari 的「分享」選單選擇「加入主畫面」，像 App 一樣開啟。</p>
+  </dialog>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

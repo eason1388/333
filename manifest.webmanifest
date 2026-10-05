@@ -1,0 +1,14 @@
+{
+  "name": "紫微斗數全書・十四主星電子書",
+  "short_name": "紫微古書",
+  "description": "十四主星古書原文、白話翻譯與判讀條件",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#19142b",
+  "theme_color": "#19142b",
+  "icons": [
+    {"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"},
+    {"src":"./apple-touch-icon.png","sizes":"180x180","type":"image/png","purpose":"any"}
+  ]
+}
