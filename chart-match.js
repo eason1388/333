@@ -32,13 +32,19 @@ export function parseWenmoText(text){
     if(heading){
       const name=palaceName(heading[1]);
       if(!PALACES.includes(name))continue;
-      current={name,stem:heading[2],branch:heading[3],body:line.includes('[身宮]'),stars:[]};
+      current={name,stem:heading[2],branch:heading[3],body:line.includes('[身宮]'),stars:[],decadal:null,smallAges:[],annualAges:[],changsheng:''};
       palaces.push(current);
       continue;
     }
     if(!current)continue;
     const field=line.match(/[├└](主星|輔星|小星)\s*[:：]\s*(.*)/);
     if(field)current.stars.push(...parseStarField(field[2]));
+    const decade=line.match(/[├└]大限\s*[:：]\s*(\d+)\s*[~～－-]\s*(\d+)/);
+    if(decade)current.decadal=[Number(decade[1]),Number(decade[2])];
+    const ages=line.match(/[├└](小限|流年)\s*[:：]\s*([\d,，、\s]+)/);
+    if(ages)current[ages[1]==='小限'?'smallAges':'annualAges']=ages[2].split(/[,，、\s]+/).map(Number).filter(Number.isFinite);
+    const changsheng=line.match(/[├└]十二長生\s*[:：]\s*([^\s│]+)/);
+    if(changsheng)current.changsheng=clean(changsheng[1]);
   }
   const names=new Set(palaces.map(p=>p.name));
   if(palaces.length!==12 || names.size!==12 || palaces.some(p=>!p.stars.length))throw Error('文字盤沒有完整辨識出十二宮星曜；請確認貼入的是完整原文，而不是截斷的畫面文字。');
@@ -46,14 +52,18 @@ export function parseWenmoText(text){
   const lunar=text.match(/農曆時間\s*[:：]\s*([^\r\n]+)/)?.[1]?.trim()||'';
   const gender=text.match(/性[别別]\s*[:：]\s*([男女])/)?.[1]||'';
   const yearStem=lunar.match(/^([甲乙丙丁戊己庚辛壬癸])/)?.[1]||text.match(/節氣四柱\s*[:：]\s*([甲乙丙丁戊己庚辛壬癸])/)?.[1]||'';
-  return {source:'wenmo',verified:true,birth,lunar,gender,yearStem,palaces};
+  const fiveElementsClass=text.match(/五行局數\s*[:：]\s*([^\r\n]+)/)?.[1]?.trim()||'';
+  const soul=text.match(/命主\s*[:：]\s*([^;；\s\r\n]+)/)?.[1]||'';
+  const bodyStar=text.match(/身主\s*[:：]\s*([^;；\s\r\n]+)/)?.[1]||'';
+  return {source:'wenmo',verified:true,birth,lunar,gender,yearStem,fiveElementsClass,soul,bodyStar,palaces};
 }
 export function chartFromIztro(astrolabe){
   const palaces=astrolabe.palaces.map(p=>({
     name:palaceName(p.name),stem:clean(p.heavenlyStem),branch:clean(p.earthlyBranch),body:!!p.isBodyPalace,
+    decadal:p.decadal?.range||null,smallAges:p.ages||[],annualAges:[],changsheng:clean(p.changsheng12),
     stars:[...p.majorStars,...p.minorStars,...p.adjectiveStars].map(s=>({name:starName(s.name),brightness:clean(s.brightness),mutagen:clean(s.mutagen),tags:[]}))
   }));
-  return {source:'reference',verified:false,birth:astrolabe.solarDate,lunar:astrolabe.lunarDate,gender:'',yearStem:clean(astrolabe.chineseDate).slice(0,1),palaces};
+  return {source:'reference',verified:false,birth:astrolabe.solarDate,lunar:astrolabe.lunarDate,gender:'',yearStem:clean(astrolabe.chineseDate).slice(0,1),fiveElementsClass:clean(astrolabe.fiveElementsClass),soul:clean(astrolabe.soul),bodyStar:clean(astrolabe.body),palaces};
 }
 export function compareCharts(reference,wenmo){
   if(!reference || !wenmo)return null;

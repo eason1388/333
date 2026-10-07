@@ -33,6 +33,7 @@
       <button type="button" id="view-pure">古籍全文</button>
       <button type="button" id="view-explained">逐段白話</button>
       <button type="button" id="view-chart">命盤核對</button>
+      <button type="button" id="view-astrolabe">十二宮排盤</button>
     </nav>
 
     <div class="star-strip" id="star-strip" role="navigation" aria-label="十四主星"></div>
@@ -95,8 +96,8 @@
     <main class="chart-workspace" id="chart-workspace" hidden>
       <div class="chart-title">
         <span class="eyebrow">CHART × CLASSICS</span>
-        <h1>命盤對照古書原句</h1>
-        <p>輸入出生資料先取得參考盤；若要以文墨天機為準，可貼入它的「AI 描述」文字盤。系統只列出能指明宮位、同宮、地支等具體條件的原句，並交代對上的地方。</p>
+        <h1 id="chart-page-title">命盤對照古書原句</h1>
+        <p id="chart-page-intro">輸入出生資料先取得參考盤；若要以文墨天機為準，可貼入它的「AI 描述」文字盤。系統只列出能指明宮位、同宮、地支等具體條件的原句，並交代對上的地方。</p>
       </div>
       <div class="chart-layout">
         <div class="chart-inputs">
@@ -108,7 +109,7 @@
               <label>出生時間<input id="birth-time" type="time" required></label>
               <label>性別<select id="birth-gender" required><option value="">請選擇</option><option value="男">男</option><option value="女">女</option></select></label>
               <label class="leap-option" id="leap-option" hidden><input id="birth-leap" type="checkbox">農曆閏月</label>
-              <button class="primary-action" type="submit">排盤並比對原文</button>
+              <button class="primary-action" id="chart-submit" type="submit">排盤並比對原文</button>
             </form>
             <p class="input-note">自動排盤採開源排盤規則，以輸入的鐘錶時間計算；閏月、晚子時、真太陽時及文墨天機的自訂設定可能不同。未匯入文墨文字盤前，結果會標為「參考」，不當作已核對。</p>
           </section>
@@ -124,11 +125,14 @@
           <div id="chart-status" class="chart-status" role="status" aria-live="polite">請輸入出生資料，或貼上文墨天機文字命盤。</div>
           <section id="chart-result" hidden>
             <div class="chart-summary" id="chart-summary"></div>
-            <div class="chart-grid" id="chart-grid" aria-label="十二宮星曜"></div>
-            <div class="match-heading"><div><span class="eyebrow">MATCHED PASSAGES</span><h2 id="match-title">符合條件的原句</h2></div><label>篩選主星<select id="match-star-filter"><option value="all">全部主星</option></select></label></div>
-            <p class="match-method" id="match-method"></p>
-            <div id="match-list" class="match-list"></div>
-            <button id="match-more" class="load-more" type="button" hidden>顯示更多原句</button>
+            <p class="chart-scroll-hint">十二宮方盤可左右滑動；點選宮格可看清星曜與四化標記。</p>
+            <div class="chart-board-scroll" role="region" aria-label="可橫向捲動的十二宮命盤" tabindex="0"><div class="chart-board" id="chart-grid" aria-label="十二宮星曜"></div></div>
+            <section id="match-section">
+              <div class="match-heading"><div><span class="eyebrow">MATCHED PASSAGES</span><h2 id="match-title">符合條件的原句</h2></div><label>篩選主星<select id="match-star-filter"><option value="all">全部主星</option></select></label></div>
+              <p class="match-method" id="match-method"></p>
+              <div id="match-list" class="match-list"></div>
+              <button id="match-more" class="load-more" type="button" hidden>顯示更多原句</button>
+            </section>
           </section>
         </div>
       </div>
@@ -141,6 +145,7 @@
     <p>每段左側是 Word 索引保留的古書原文，右側是對應的白話與使用條件。手機版改為上下排列，字級可用右上角調整。</p>
     <p>「古籍全文」依維基文庫《紫微斗數全書》卷一至卷三的篇章順序連續排列，不按主星分類、不附白話；「逐段白話」依同一順序，在每段原文後接詳細解釋。左側篇章目錄可跳轉；卷二原有的文字圖表也照錄。原文閱讀頁的 1,335 筆則是另外製作的主星分類索引。</p>
     <p>「命盤核對」可輸入出生資料試排，或貼入文墨天機 AI 描述文字，以原盤的十二宮星曜逐筆檢查原文中可辨識的結構條件。結果會列出對上哪個宮位或星曜；只核對部分文字，不代表整句推斷成立。</p>
+    <p>「十二宮排盤」以傳統十二宮方盤顯示宮干、地支、星曜、生年四化、大限及小限；匯入文墨天機文字盤後也顯示其中的流年歲數與飛化標記。單憑出生資料排出的是開源規則參考盤，並非文墨天機軟體的完全同款演算法。</p>
     <p>「原文閱讀」是 1,335 筆主星分類索引，不是古籍全文；「古籍全文」則依選定的維基文庫卷一至卷三底本照錄，其他版本文字可能不同。「命盤核對」只檢查可辨識的本命結構，不推算大限、流年或事件。疾病、壽命、性別與階級等舊判語僅供文獻理解，不應當作現代事實預告。</p>
     <p class="install-tip">iPhone 可在 Safari 的「分享」選單選擇「加入主畫面」，像 App 一樣開啟。</p>
   </dialog>
