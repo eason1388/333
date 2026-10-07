@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#19142b">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="description" content="《紫微斗數全書》卷一至卷三古籍原文連續閱讀，另有十四主星分類索引、1,335 筆原句白話翻譯與命盤核對。">
+  <meta name="description" content="《紫微斗數全書》卷一至卷三古籍原文與逐段白話，另有十四主星分類索引、1,335 筆原句白話翻譯與命盤核對。">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" href="./apple-touch-icon.png">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='13' fill='%2319142b'/%3E%3Crect x='7' y='7' width='50' height='50' rx='8' fill='none' stroke='%23eac578' stroke-width='2'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-size='38' font-family='serif' fill='%23f7efd9'%3E紫%3C/text%3E%3C/svg%3E">
@@ -31,6 +31,7 @@
     <nav class="view-tabs" aria-label="電子書功能">
       <button type="button" id="view-reader" aria-current="page">原文閱讀</button>
       <button type="button" id="view-pure">古籍全文</button>
+      <button type="button" id="view-explained">逐段白話</button>
       <button type="button" id="view-chart">命盤核對</button>
     </nav>
 
@@ -78,9 +79,9 @@
 
     <main class="fullbook-workspace" id="fullbook-workspace" hidden>
       <header class="fullbook-header" id="fullbook-start">
-        <span class="eyebrow">ORIGINAL TEXT · THREE VOLUMES</span>
-        <h1>《紫微斗數全書》原文</h1>
-        <p>卷一至卷三，依古籍原有篇章次序由前往後連續閱讀；此欄不按主星拆句，也不附白話。</p>
+        <span class="eyebrow" id="fullbook-kicker">ORIGINAL TEXT · THREE VOLUMES</span>
+        <h1 id="fullbook-heading">《紫微斗數全書》原文</h1>
+        <p id="fullbook-intro">卷一至卷三，依古籍原有篇章次序由前往後連續閱讀；此欄不按主星拆句，也不附白話。</p>
       </header>
       <div class="fullbook-layout">
         <details class="fullbook-toc" id="fullbook-toc">
@@ -138,7 +139,7 @@
     <div class="dialog-head"><h2>閱讀說明</h2><button type="button" id="help-close" aria-label="關閉說明">關閉</button></div>
     <p>選擇主星後，可依「專論」或「散見」閱讀；也能搜尋原文、白話翻譯及判讀條件。</p>
     <p>每段左側是 Word 索引保留的古書原文，右側是對應的白話與使用條件。手機版改為上下排列，字級可用右上角調整。</p>
-    <p>「古籍全文」依維基文庫《紫微斗數全書》卷一至卷三的篇章順序連續排列，不按主星分類、不附白話。左側篇章目錄可跳轉；卷二原有的文字圖表也照錄。原文閱讀頁的 1,335 筆則是另外製作的主星分類索引。</p>
+    <p>「古籍全文」依維基文庫《紫微斗數全書》卷一至卷三的篇章順序連續排列，不按主星分類、不附白話；「逐段白話」依同一順序，在每段原文後接詳細解釋。左側篇章目錄可跳轉；卷二原有的文字圖表也照錄。原文閱讀頁的 1,335 筆則是另外製作的主星分類索引。</p>
     <p>「命盤核對」可輸入出生資料試排，或貼入文墨天機 AI 描述文字，以原盤的十二宮星曜逐筆檢查原文中可辨識的結構條件。結果會列出對上哪個宮位或星曜；只核對部分文字，不代表整句推斷成立。</p>
     <p>「原文閱讀」是 1,335 筆主星分類索引，不是古籍全文；「古籍全文」則依選定的維基文庫卷一至卷三底本照錄，其他版本文字可能不同。「命盤核對」只檢查可辨識的本命結構，不推算大限、流年或事件。疾病、壽命、性別與階級等舊判語僅供文獻理解，不應當作現代事實預告。</p>
     <p class="install-tip">iPhone 可在 Safari 的「分享」選單選擇「加入主畫面」，像 App 一樣開啟。</p>
