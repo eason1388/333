@@ -55,7 +55,20 @@ export function parseWenmoText(text){
   const fiveElementsClass=text.match(/五行局數\s*[:：]\s*([^\r\n]+)/)?.[1]?.trim()||'';
   const soul=text.match(/命主\s*[:：]\s*([^;；\s\r\n]+)/)?.[1]||'';
   const bodyStar=text.match(/身主\s*[:：]\s*([^;；\s\r\n]+)/)?.[1]||'';
-  return {source:'wenmo',verified:true,birth,lunar,gender,yearStem,fiveElementsClass,soul,bodyStar,palaces};
+  const fourTable={};const conflictingStems=new Set();let flowStem='';
+  for(const line of text.slice(end).split('\n')){
+    const year=line.match(/\d{4}年\[([甲乙丙丁戊己庚辛壬癸])[子丑寅卯辰巳午未申酉戌亥]\]/);
+    if(year)flowStem=year[1];
+    const flow=line.match(/流年四化\s*[:：]\s*([^\n]+)/);
+    if(!flow||!flowStem)continue;
+    const entries=flow[1].split(/[,，、]/).map(part=>clean(part).replace(/[│└├─]/g,'').match(/^([\u4e00-\u9fff]{2,3})([祿權科忌])$/));
+    if(entries.length!==4||entries.some((entry,index)=>!entry||entry[2]!=='祿權科忌'[index]))continue;
+    const stars=entries.map(entry=>entry[1]);
+    if(conflictingStems.has(flowStem))continue;
+    if(fourTable[flowStem]&&fourTable[flowStem].join(',')!==stars.join(',')){delete fourTable[flowStem];conflictingStems.add(flowStem);}
+    else if(!fourTable[flowStem])fourTable[flowStem]=stars;
+  }
+  return {source:'wenmo',verified:true,birth,lunar,gender,yearStem,fiveElementsClass,soul,bodyStar,fourTable,palaces};
 }
 export function chartFromIztro(astrolabe){
   const palaces=astrolabe.palaces.map(p=>({

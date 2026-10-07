@@ -1,13 +1,18 @@
 import {parseWenmoText,chartFromIztro,compareCharts,matchEntries} from './chart-match.js';
+import {palaceFlights} from './palace-flight.js';
 
 const $=id=>document.getElementById(id);
-const ui={readerTab:$('view-reader'),pureTab:$('view-pure'),explainedTab:$('view-explained'),chartTab:$('view-chart'),astrolabeTab:$('view-astrolabe'),reader:$('reader-workspace'),stars:$('star-strip'),fullbook:$('fullbook-workspace'),chart:$('chart-workspace'),pageTitle:$('chart-page-title'),pageIntro:$('chart-page-intro'),submit:$('chart-submit'),form:$('chart-form'),calendar:$('birth-calendar'),date:$('birth-date'),time:$('birth-time'),gender:$('birth-gender'),leap:$('birth-leap'),leapOption:$('leap-option'),paste:$('wenmo-text'),file:$('wenmo-file'),import:$('wenmo-import'),status:$('chart-status'),result:$('chart-result'),summary:$('chart-summary'),grid:$('chart-grid'),title:$('match-title'),method:$('match-method'),list:$('match-list'),filter:$('match-star-filter'),more:$('match-more')};
+const ui={readerTab:$('view-reader'),pureTab:$('view-pure'),explainedTab:$('view-explained'),chartTab:$('view-chart'),astrolabeTab:$('view-astrolabe'),reader:$('reader-workspace'),stars:$('star-strip'),fullbook:$('fullbook-workspace'),chart:$('chart-workspace'),pageTitle:$('chart-page-title'),pageIntro:$('chart-page-intro'),submit:$('chart-submit'),form:$('chart-form'),calendar:$('birth-calendar'),date:$('birth-date'),time:$('birth-time'),gender:$('birth-gender'),leap:$('birth-leap'),leapOption:$('leap-option'),paste:$('wenmo-text'),file:$('wenmo-file'),import:$('wenmo-import'),status:$('chart-status'),result:$('chart-result'),summary:$('chart-summary'),grid:$('chart-grid'),flightHeading:$('flight-heading'),flightRule:$('flight-rule'),flightBasis:$('flight-basis'),flightResults:$('flight-results'),title:$('match-title'),method:$('match-method'),list:$('match-list'),filter:$('match-star-filter'),more:$('match-more')};
+ui.wenmoPanel=$('wenmo-panel');ui.wenmoToggle=$('wenmo-toggle');
 let referenceChart=null;
 let wenmoChart=null;
 let allMatches=[];
 let shown=30;
 let contentPromise=null;
 let libraryPromise=null;
+let activeChart=null;
+let selectedBranch='';
+let currentFlights=[];
 
 function el(tag,cls,text){const node=document.createElement(tag);if(cls)node.className=cls;if(text!==undefined)node.textContent=text;return node;}
 function switchView(view){
@@ -34,6 +39,11 @@ ui.pureTab.addEventListener('click',()=>switchView('fullbook'));
 ui.explainedTab.addEventListener('click',()=>switchView('explained'));
 ui.chartTab.addEventListener('click',()=>switchView('chart'));
 ui.astrolabeTab.addEventListener('click',()=>switchView('astrolabe'));
+ui.wenmoToggle.addEventListener('click',()=>{
+  const open=ui.wenmoPanel.classList.toggle('is-open');
+  ui.wenmoToggle.setAttribute('aria-expanded',open?'true':'false');
+  ui.wenmoToggle.textContent=open?'收起匯入':'展開匯入';
+});
 ui.calendar.addEventListener('change',()=>{
   const lunar=ui.calendar.value==='lunar';
   ui.leapOption.hidden=!lunar;
@@ -94,6 +104,76 @@ function renderSummary(chart,comparison){
     for(const difference of comparison.differences)ui.summary.append(el('p','compare-warning',difference));
   }
 }
+function selectPalace(chart,branch){
+  const source=chart.palaces.find(palace=>palace.branch===branch);
+  if(!source)return;
+  selectedBranch=branch;
+  currentFlights=palaceFlights(chart,source);
+  ui.flightHeading.textContent=`${source.name}宮（${source.stem}${source.branch}）宮干四化`;
+  const fromImport=chart.verified&&chart.fourTable?.[source.stem]?.length===4;
+  ui.flightRule.textContent=fromImport?'依匯入的文墨四化資料':'依全書通行四化表';
+  ui.flightBasis.textContent=fromImport?`化星依文墨文字盤所列的${source.stem}干「流年四化」對應表；落宮依匯入的十二宮星曜定位。此處是宮干飛化，不是生年四化。`:'此處的宮干飛化依預設四化表與目前盤面星曜定位，與固定的生年四化不同。若文墨天機另選四化表且匯出文字未列明，結果須以文墨設定核對。';
+  const rows=document.createDocumentFragment();
+  const centerRows=document.createDocumentFragment();
+  centerRows.append(el('strong','',`${source.name}宮 ${source.stem}干飛化`));
+  for(const flight of currentFlights){
+    const destination=flight.target?`${flight.target.name}宮（${flight.target.stem}${flight.target.branch}）`:'盤內未列此星';
+    const line=el('div',`flight-item fly-${flight.type}`);
+    line.append(el('b','flight-type',`化${flight.type}`),el('span','flight-star',flight.star),el('span','flight-direction','→'),el('strong','flight-destination',destination));
+    if(flight.self)line.append(el('em','flight-self','自化'));
+    if(!flight.target)line.classList.add('flight-missing');
+    rows.append(line);
+    centerRows.append(el('div',`center-flight-row fly-${flight.type}`,`化${flight.type} ${flight.star} → ${flight.target?`${flight.target.name}宮${flight.self?'（自化）':''}`:'未定位'}`));
+  }
+  ui.flightResults.replaceChildren(rows);
+  $('center-flight')?.replaceChildren(centerRows);
+  for(const tile of ui.grid.querySelectorAll('.palace-tile')){
+    const isSource=tile.dataset.branch===branch;
+    tile.classList.toggle('palace-selected',isSource);
+    tile.setAttribute('aria-pressed',isSource?'true':'false');
+    tile.classList.toggle('palace-target',currentFlights.some(flight=>flight.target?.branch===tile.dataset.branch));
+    for(const node of tile.querySelectorAll('[data-star]')){
+      const flight=currentFlights.find(item=>item.target?.branch===tile.dataset.branch&&item.star===node.dataset.star);
+      node.classList.toggle('flight-star-selected',!!flight);
+      node.dataset.flightType=flight?.type||'';
+    }
+  }
+  requestAnimationFrame(drawFlightLines);
+}
+function drawFlightLines(){
+  const svg=ui.grid.querySelector('.fly-lines');
+  const source=ui.grid.querySelector('.palace-selected');
+  if(!svg||!source)return;
+  const ns='http://www.w3.org/2000/svg';
+  const colors={祿:'#b67a19',權:'#c53b39',科:'#13848f',忌:'#7949a3'};
+  const make=(tag,attributes={})=>{const node=document.createElementNS(ns,tag);for(const [key,value] of Object.entries(attributes))node.setAttribute(key,String(value));return node;};
+  const width=ui.grid.clientWidth,height=ui.grid.clientHeight;
+  if(!width||!height)return;
+  svg.setAttribute('viewBox',`0 0 ${width} ${height}`);
+  const defs=make('defs');
+  for(const [type,color] of Object.entries(colors)){
+    const marker=make('marker',{id:`fly-arrow-${type}`,markerWidth:8,markerHeight:8,refX:7,refY:4,orient:'auto',markerUnits:'strokeWidth'});
+    marker.append(make('path',{d:'M 0 0 L 8 4 L 0 8 z',fill:color}));defs.append(marker);
+  }
+  const artwork=document.createDocumentFragment();artwork.append(defs);
+  const board=ui.grid.getBoundingClientRect();
+  const rectOf=node=>{const r=node.getBoundingClientRect();return {cx:r.left-board.left+r.width/2,cy:r.top-board.top+r.height/2,w:r.width,h:r.height};};
+  const a=rectOf(source);
+  for(const [index,flight] of currentFlights.entries()){
+    if(!flight.target||flight.self)continue;
+    const target=[...ui.grid.querySelectorAll('.palace-tile')].find(tile=>tile.dataset.branch===flight.target.branch);
+    if(!target)continue;
+    const b=rectOf(target),dx=b.cx-a.cx,dy=b.cy-a.cy,length=Math.hypot(dx,dy)||1;
+    const sourceScale=Math.min((a.w/2-13)/(Math.abs(dx)||Infinity),(a.h/2-13)/(Math.abs(dy)||Infinity));
+    const targetScale=Math.min((b.w/2-13)/(Math.abs(dx)||Infinity),(b.h/2-13)/(Math.abs(dy)||Infinity));
+    const x1=a.cx+dx*sourceScale,y1=a.cy+dy*sourceScale,x2=b.cx-dx*targetScale,y2=b.cy-dy*targetScale;
+    const offset=(index-1.5)*16;
+    const mx=(x1+x2)/2-dy/length*offset,my=(y1+y2)/2+dx/length*offset;
+    artwork.append(make('path',{d:`M ${x1} ${y1} Q ${mx} ${my} ${x2} ${y2}`,fill:'none',stroke:colors[flight.type],'stroke-width':2.6,'stroke-dasharray':'7 5','stroke-linecap':'round','marker-end':`url(#fly-arrow-${flight.type})`}));
+  }
+  svg.replaceChildren(artwork);
+}
+if(typeof ResizeObserver!=='undefined')new ResizeObserver(()=>{if(activeChart)requestAnimationFrame(drawFlightLines);}).observe(ui.grid);
 function renderGrid(chart){
   const frag=document.createDocumentFragment();
   const positions={巳:[1,1],午:[1,2],未:[1,3],申:[1,4],辰:[2,1],酉:[2,4],卯:[3,1],戌:[3,4],寅:[4,1],丑:[4,2],子:[4,3],亥:[4,4]};
@@ -101,13 +181,17 @@ function renderGrid(chart){
   for(const palace of chart.palaces){
     const tile=el('section','palace-tile');
     const [row,col]=positions[palace.branch]||[1,1];tile.style.gridRow=String(row);tile.style.gridColumn=String(col);
-    tile.setAttribute('aria-label',`${palace.stem}${palace.branch} ${palace.name}宮`);
+    tile.dataset.branch=palace.branch;
+    tile.tabIndex=0;tile.setAttribute('role','button');tile.setAttribute('aria-pressed','false');
+    tile.setAttribute('aria-label',`${palace.stem}${palace.branch} ${palace.name}宮，點選查看宮干四化`);
+    tile.addEventListener('click',()=>selectPalace(chart,palace.branch));
+    tile.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();selectPalace(chart,palace.branch);}});
     const head=el('h3','palace-head');head.append(el('span','',`${palace.name}宮${palace.body?' · 身宮':''}`),el('b','',`${palace.stem}${palace.branch}`));tile.append(head);
     const main=el('div','palace-stars');
     const majors=palace.stars.filter(s=>majorNames.has(s.name));
     if(!majors.length)main.append(el('span','empty-palace','無十四主星（空宮）'));
     for(const star of majors){
-      const line=el('div','star-line');line.append(el('strong','',star.name));
+      const line=el('div','star-line');line.dataset.star=star.name;line.append(el('strong','',star.name));
       if(star.brightness)line.append(el('span','star-brightness',star.brightness));
       const mutations=[...new Set([...(star.mutagen?[`生年${star.mutagen}`]:[]),...(star.tags||[]).filter(tag=>/^(生年|[↑↓])[祿權科忌]$/.test(tag))])];
       for(const mutation of mutations)line.append(el('span',`star-mutation mutagen-${mutation.slice(-1)}`,mutation));
@@ -118,7 +202,7 @@ function renderGrid(chart){
     if(others.length){
       const row=el('div','palace-other');
       for(const star of others){
-        const item=el('span','',`${star.name}${star.brightness?` · ${star.brightness}`:''}`);
+        const item=el('span','',`${star.name}${star.brightness?` · ${star.brightness}`:''}`);item.dataset.star=star.name;
         row.append(item);
         const mutations=[...new Set([...(star.mutagen?[`生年${star.mutagen}`]:[]),...(star.tags||[]).filter(tag=>/^(生年|[↑↓])[祿權科忌]$/.test(tag))])];
         for(const mutation of mutations)row.append(el('span',`star-mutation mutagen-${mutation.slice(-1)}`,mutation));
@@ -142,9 +226,14 @@ function renderGrid(chart){
     if(!value)continue;details.append(el('dt','',label),el('dd','',value));
   }
   center.append(details);
-  center.append(el('p','center-note',chart.verified?'宮位與星曜依匯入的文墨文字盤顯示；飛化箭頭僅照錄原始標記，不另推算。':'依輸入鐘錶時間試排；閏月、晚子時、真太陽時與文墨設定可能不同，請以文墨原盤核對。'));
+  const centerFlight=el('div','center-flight');centerFlight.id='center-flight';center.append(centerFlight);
+  center.append(el('p','center-note',chart.verified?'宮位與星曜依匯入的文墨文字盤顯示；點宮位查看宮干飛化。原有的 ↑↓ 標記仍照錄，不當作新推算結果。':'依輸入鐘錶時間試排；閏月、晚子時、真太陽時與文墨設定可能不同，請以文墨原盤核對。'));
   frag.append(center);
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.classList.add('fly-lines');svg.setAttribute('aria-hidden','true');frag.append(svg);
   ui.grid.replaceChildren(frag);
+  activeChart=chart;
+  selectedBranch=chart.palaces.find(p=>p.name==='命')?.branch||chart.palaces[0]?.branch||'';
+  selectPalace(chart,selectedBranch);
 }
 function renderFilters(){
   const previous=ui.filter.value;
