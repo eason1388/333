@@ -7,6 +7,10 @@ const intro=document.getElementById('fullbook-intro');
 let originalPromise=null;
 let explainedPromise=null;
 let requestedMode='fullbook';
+function readingEdition(sectionId,text){
+  if(sectionId!=='v一-19')return text;
+  return text.replaceAll('，欺瞞天地','').replaceAll('，交人初善終惡','');
+}
 
 async function fetchJson(url){
   const response=await fetch(url,{cache:'no-cache'});
@@ -48,14 +52,14 @@ function render(data,mode='fullbook',translation=null,originalData=data){
         for(const unit of section.units){
           const pair=node('div','fullbook-pair');
           pair.append(node('div','fullbook-pair-label','古籍原文'));
-          pair.append(node(unit.type==='diagram'?'pre':'p',unit.type==='diagram'?'fullbook-diagram':'fullbook-paragraph',unit.original));
+          pair.append(node(unit.type==='diagram'?'pre':'p',unit.type==='diagram'?'fullbook-diagram':'fullbook-paragraph',readingEdition(section.id,unit.original)));
           pair.append(node('div','fullbook-pair-label explanation-label','詳細白話'));
           pair.append(node('p','fullbook-explanation',translation.entries[unit.id].plain));
           sectionNode.append(pair);
         }
       }else{
         for(const block of section.blocks){
-          const content=node(block.type==='diagram'?'pre':'p',block.type==='diagram'?'fullbook-diagram':'fullbook-paragraph',block.text);
+          const content=node(block.type==='diagram'?'pre':'p',block.type==='diagram'?'fullbook-diagram':'fullbook-paragraph',readingEdition(section.id,block.text));
           sectionNode.append(content);
         }
       }
@@ -69,7 +73,7 @@ function render(data,mode='fullbook',translation=null,originalData=data){
   textRoot.replaceChildren(book);
   kicker.textContent=explained?'ORIGINAL & EXPLANATION · THREE VOLUMES':'ORIGINAL TEXT · THREE VOLUMES';
   heading.textContent=explained?'《紫微斗數全書》逐段白話':'《紫微斗數全書》原文';
-  intro.textContent=explained?'卷一至卷三依原書次序閱讀；每段原文後緊接對應白話。長段僅為閱讀拆開，原文字句與先後順序不變。':'卷一至卷三，依古籍原有篇章次序由前往後連續閱讀；此欄不按主星拆句，也不附白話。';
+  intro.textContent=explained?'卷一至卷三依原書次序閱讀，每段原文後接白話。巨門篇有兩處依讀者要求刪節；需核對無刪原文，請點各卷的維基文庫底本。':'卷一至卷三依篇章次序閱讀，不按主星拆句。巨門篇有兩處依讀者要求刪節；需核對無刪原文，請點各卷的維基文庫底本。';
   toc.open=window.matchMedia('(min-width: 800px)').matches;
 }
 toc.addEventListener('click',event=>{
