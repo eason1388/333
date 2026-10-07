@@ -127,13 +127,22 @@
           <div id="chart-status" class="chart-status" role="status" aria-live="polite">請輸入出生資料，或貼上文墨天機文字命盤。</div>
           <section id="chart-result" hidden>
             <div class="chart-summary" id="chart-summary"></div>
+            <div class="board-toolbar" id="board-toolbar" aria-label="命盤檢視方式">
+              <strong>十二宮命盤</strong>
+              <div><button type="button" id="board-fit" aria-pressed="false">整盤總覽</button><button type="button" id="board-zoom" aria-pressed="true">放大閱讀</button></div>
+            </div>
             <section class="flight-panel" id="flight-panel" aria-live="polite">
               <div class="flight-panel-head"><div><span class="eyebrow">PALACE STEM · FOUR TRANSFORMATIONS</span><h2 id="flight-heading">點選宮位，查看宮干四化</h2></div><span class="flight-rule" id="flight-rule">依全書通行四化表</span></div>
               <div id="flight-results" class="flight-results"></div>
               <p class="flight-basis"><span id="flight-basis">此處的「宮干飛化」由所選宮的宮干起算，與盤上固定的「生年四化」不同。目標宮位依目前盤面星曜定位；文墨天機若選用其他四化表，請以文墨設定為準。</span> <a href="https://docs.iztro.com/learn/mutagen" target="_blank" rel="noopener noreferrer">查看預設四化表</a></p>
             </section>
             <p class="chart-scroll-hint">點選十二宮看飛化方向；手機可左右滑動方盤。</p>
-            <div class="chart-board-scroll" role="region" aria-label="可橫向捲動的十二宮命盤" tabindex="0"><div class="chart-board" id="chart-grid" aria-label="十二宮星曜"></div></div>
+            <div class="chart-board-scroll" id="chart-board-scroll" role="region" aria-label="可橫向捲動的十二宮命盤" tabindex="0"><div class="chart-board" id="chart-grid" aria-label="十二宮星曜"></div></div>
+            <section class="chart-timeline" id="chart-timeline" aria-label="大限與流年" hidden>
+              <div class="timeline-row"><strong>大限</strong><div class="timeline-items" id="decade-items"></div></div>
+              <div class="timeline-row"><strong>流年</strong><div class="timeline-items" id="year-items"></div></div>
+              <p id="timeline-note">點選大限可查看該十年的流年；流月、流日與流時不在此圖試排。</p>
+            </section>
             <section id="match-section">
               <div class="match-heading"><div><span class="eyebrow">MATCHED PASSAGES</span><h2 id="match-title">符合條件的原句</h2></div><label>篩選主星<select id="match-star-filter"><option value="all">全部主星</option></select></label></div>
               <p class="match-method" id="match-method"></p>

@@ -55,6 +55,20 @@ export function parseWenmoText(text){
   const fiveElementsClass=text.match(/五行局數\s*[:：]\s*([^\r\n]+)/)?.[1]?.trim()||'';
   const soul=text.match(/命主\s*[:：]\s*([^;；\s\r\n]+)/)?.[1]||'';
   const bodyStar=text.match(/身主\s*[:：]\s*([^;；\s\r\n]+)/)?.[1]||'';
+  const pillars=text.match(/節氣四柱\s*[:：]\s*([^\r\n]+)/)?.[1]?.trim()||'';
+  const trueSolarTime=text.match(/真太陽時\s*[:：]\s*([^\r\n]+)/)?.[1]?.trim()||'';
+  const decades=[];let decade=null;
+  for(const line of text.slice(end).split('\n')){
+    const start=line.match(/第(\d+)大限\[([甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥])\]/);
+    if(start){decade={index:Number(start[1]),stemBranch:start[2],years:[]};decades.push(decade);continue;}
+    if(!decade)continue;
+    const range=line.match(/起止年份\s*[:：]\s*(\d{4})年\((\d+)虛歲\)\s*[~～－-]\s*(\d{4})年\((\d+)虛歲\)/);
+    if(range){decade.yearRange=[Number(range[1]),Number(range[3])];decade.ageRange=[Number(range[2]),Number(range[4])];}
+    const year=line.match(/\d{4}年\[([甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥])\]\((\d+)虛歲\)/);
+    if(year){const calendarYear=Number(line.match(/(\d{4})年\[/)?.[1]);decade.years.push({year:calendarYear,stemBranch:year[1],age:Number(year[2])});}
+    const flowPalace=line.match(/命宮干支\s*[:：]\s*[甲乙丙丁戊己庚辛壬癸]([子丑寅卯辰巳午未申酉戌亥])/);
+    if(flowPalace&&decade.years.length)decade.years.at(-1).palaceBranch=flowPalace[1];
+  }
   const fourTable={};const conflictingStems=new Set();let flowStem='';
   for(const line of text.slice(end).split('\n')){
     const year=line.match(/\d{4}年\[([甲乙丙丁戊己庚辛壬癸])[子丑寅卯辰巳午未申酉戌亥]\]/);
@@ -68,7 +82,7 @@ export function parseWenmoText(text){
     if(fourTable[flowStem]&&fourTable[flowStem].join(',')!==stars.join(',')){delete fourTable[flowStem];conflictingStems.add(flowStem);}
     else if(!fourTable[flowStem])fourTable[flowStem]=stars;
   }
-  return {source:'wenmo',verified:true,birth,lunar,gender,yearStem,fiveElementsClass,soul,bodyStar,fourTable,palaces};
+  return {source:'wenmo',verified:true,birth,lunar,gender,yearStem,fiveElementsClass,soul,bodyStar,pillars,trueSolarTime,decades,fourTable,palaces};
 }
 export function chartFromIztro(astrolabe){
   const palaces=astrolabe.palaces.map(p=>({
@@ -76,7 +90,8 @@ export function chartFromIztro(astrolabe){
     decadal:p.decadal?.range||null,smallAges:p.ages||[],annualAges:[],changsheng:clean(p.changsheng12),
     stars:[...p.majorStars,...p.minorStars,...p.adjectiveStars].map(s=>({name:starName(s.name),brightness:clean(s.brightness),mutagen:clean(s.mutagen),tags:[]}))
   }));
-  return {source:'reference',verified:false,birth:astrolabe.solarDate,lunar:astrolabe.lunarDate,gender:'',yearStem:clean(astrolabe.chineseDate).slice(0,1),fiveElementsClass:clean(astrolabe.fiveElementsClass),soul:clean(astrolabe.soul),bodyStar:clean(astrolabe.body),palaces};
+  const decades=(astrolabe.decadalList?.()||[]).map((d,index)=>({index:index+1,stemBranch:`${d.heavenlyStem||''}${d.earthlyBranch||''}`,ageRange:d.ageRange,yearRange:d.yearRange,branch:d.earthlyBranch,years:(astrolabe.yearlyList?.(index)||[]).map(y=>({year:y.year,age:y.age,stemBranch:`${y.heavenlyStem||''}${y.earthlyBranch||''}`}))})).filter(d=>Array.isArray(d.ageRange));
+  return {source:'reference',verified:false,birth:astrolabe.solarDate,lunar:astrolabe.lunarDate,gender:'',yearStem:clean(astrolabe.chineseDate).slice(0,1),fiveElementsClass:clean(astrolabe.fiveElementsClass),soul:clean(astrolabe.soul),bodyStar:clean(astrolabe.body),pillars:astrolabe.chineseDate||'',decades,palaces};
 }
 export function compareCharts(reference,wenmo){
   if(!reference || !wenmo)return null;

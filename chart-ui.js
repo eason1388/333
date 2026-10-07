@@ -13,6 +13,8 @@ let libraryPromise=null;
 let activeChart=null;
 let selectedBranch='';
 let currentFlights=[];
+let boardMode=matchMedia('(max-width: 700px)').matches?'fit':'zoom';
+let boardScale=1;
 
 function el(tag,cls,text){const node=document.createElement(tag);if(cls)node.className=cls;if(text!==undefined)node.textContent=text;return node;}
 function switchView(view){
@@ -32,6 +34,7 @@ function switchView(view){
   ui.submit.textContent=view==='astrolabe'?'排出十二宮方盤':'排盤並比對原文';
   ui.import.textContent=view==='astrolabe'?'匯入並顯示方盤':'匯入並核對';
   if(fullbook)window.dispatchEvent(new CustomEvent('fullbook-open',{detail:{mode:view}}));
+  requestAnimationFrame(updateBoardMode);
   window.scrollTo({top:0,behavior:'instant'});
 }
 ui.readerTab.addEventListener('click',()=>switchView('reader'));
@@ -91,7 +94,7 @@ ui.file.addEventListener('change',async()=>{
 });
 ui.import.addEventListener('click',async()=>{
   setStatus('正在讀取文墨天機十二宮文字盤…');
-  try{wenmoChart=parseWenmoText(ui.paste.value);await render();}
+  try{wenmoChart=parseWenmoText(ui.paste.value);await render();ui.wenmoPanel.classList.remove('is-open');ui.wenmoToggle.setAttribute('aria-expanded','false');ui.wenmoToggle.textContent='展開匯入';}
   catch(error){setStatus(error.message,true);}
 });
 
@@ -157,7 +160,8 @@ function drawFlightLines(){
   }
   const artwork=document.createDocumentFragment();artwork.append(defs);
   const board=ui.grid.getBoundingClientRect();
-  const rectOf=node=>{const r=node.getBoundingClientRect();return {cx:r.left-board.left+r.width/2,cy:r.top-board.top+r.height/2,w:r.width,h:r.height};};
+  const scale=document.body.classList.contains('astrolabe-mode')?boardScale:1;
+  const rectOf=node=>{const r=node.getBoundingClientRect();return {cx:(r.left-board.left+r.width/2)/scale,cy:(r.top-board.top+r.height/2)/scale,w:r.width/scale,h:r.height/scale};};
   const a=rectOf(source);
   for(const [index,flight] of currentFlights.entries()){
     if(!flight.target||flight.self)continue;
@@ -173,7 +177,54 @@ function drawFlightLines(){
   }
   svg.replaceChildren(artwork);
 }
+function updateBoardMode(){
+  const scroller=$('chart-board-scroll');
+  const board=ui.grid;
+  const fit=document.body.classList.contains('astrolabe-mode')&&boardMode==='fit'&&activeChart&&scroller.clientWidth>0;
+  board.style.transform='';scroller.style.height='';scroller.classList.toggle('board-fit',!!fit);
+  boardScale=fit?Math.min(1,scroller.clientWidth/(board.scrollWidth||980)):1;
+  if(fit){board.style.transform=`scale(${boardScale})`;scroller.style.height=`${Math.ceil(board.scrollHeight*boardScale)+2}px`;}
+  $('board-fit').setAttribute('aria-pressed',boardMode==='fit'?'true':'false');
+  $('board-zoom').setAttribute('aria-pressed',boardMode==='zoom'?'true':'false');
+  document.querySelector('.chart-scroll-hint').textContent=boardMode==='fit'?'整盤總覽可看全局；點「放大閱讀」後可滑動查看星曜，點宮位看宮干四化。':'放大閱讀可左右滑動方盤；點「整盤總覽」可看完整十二宮。';
+  requestAnimationFrame(drawFlightLines);
+}
+$('board-fit').addEventListener('click',()=>{boardMode='fit';updateBoardMode();});
+$('board-zoom').addEventListener('click',()=>{boardMode='zoom';updateBoardMode();});
+window.addEventListener('resize',()=>{if(activeChart)updateBoardMode();});
 if(typeof ResizeObserver!=='undefined')new ResizeObserver(()=>{if(activeChart)requestAnimationFrame(drawFlightLines);}).observe(ui.grid);
+function renderTimeline(chart){
+  const timeline=$('chart-timeline'),decadeItems=$('decade-items'),yearItems=$('year-items');
+  const decades=(chart.decades||[]).filter(d=>d.ageRange?.length===2);
+  timeline.hidden=!decades.length;
+  if(!decades.length)return;
+  const buttons=[];
+  const renderYears=decade=>{
+    for(const button of buttons)button.setAttribute('aria-pressed',button.dataset.index===String(decade.index)?'true':'false');
+    const years=document.createDocumentFragment();
+    for(const item of decade.years||[]){
+      const button=el('button','timeline-year',`${item.year}年 · ${item.age}歲`);
+      button.type='button';button.title=item.stemBranch||'';
+      button.addEventListener('click',()=>{
+        for(const child of yearItems.children)child.setAttribute('aria-pressed','false');
+        button.setAttribute('aria-pressed','true');
+        const branch=item.palaceBranch;
+        if(chart.palaces.some(p=>p.branch===branch))selectPalace(chart,branch);
+      });years.append(button);
+    }
+    if(!decade.years?.length)years.append(el('span','timeline-unavailable','此文字盤未列逐年資料'));
+    yearItems.replaceChildren(years);
+  };
+  const fragment=document.createDocumentFragment();
+  for(const decade of decades){
+    const button=el('button','timeline-decade',`${decade.ageRange[0]}–${decade.ageRange[1]}歲`);
+    button.type='button';button.dataset.index=String(decade.index);button.title=`${decade.stemBranch||''} ${decade.yearRange?.join('–')||''}`;
+    button.addEventListener('click',()=>{renderYears(decade);const branch=decade.branch||decade.stemBranch?.slice(-1);if(chart.palaces.some(p=>p.branch===branch))selectPalace(chart,branch);});
+    buttons.push(button);fragment.append(button);
+  }
+  decadeItems.replaceChildren(fragment);renderYears(decades[0]);
+  $('timeline-note').textContent=`${chart.verified?'大限與流年依匯入的文墨文字盤；點年份可選該年命宮':'大限與流年依開源參考規則；點年份只查看年份'}，不是事件預測。流月、流日與流時未計算。`;
+}
 function renderGrid(chart){
   const frag=document.createDocumentFragment();
   const positions={巳:[1,1],午:[1,2],未:[1,3],申:[1,4],辰:[2,1],酉:[2,4],卯:[3,1],戌:[3,4],寅:[4,1],丑:[4,2],子:[4,3],亥:[4,4]};
@@ -222,18 +273,25 @@ function renderGrid(chart){
   center.append(el('h2','','十二宮命盤'));
   center.append(el('p','center-source',chart.verified?'文墨天機文字盤 · 已匯入':'開源規則參考盤 · 未經文墨核對'));
   const details=el('dl','center-details');
-  for(const [label,value] of [['出生',chart.birth],['性別',chart.gender],['農曆',chart.lunar],['五行局',chart.fiveElementsClass],['命主',chart.soul],['身主',chart.bodyStar],['生年干',chart.yearStem]]){
+  for(const [label,value] of [['出生',chart.birth],['真太陽時',chart.trueSolarTime],['性別',chart.gender],['農曆',chart.lunar],['五行局',chart.fiveElementsClass],['命主',chart.soul],['身主',chart.bodyStar],['生年干',chart.yearStem]]){
     if(!value)continue;details.append(el('dt','',label),el('dd','',value));
   }
   center.append(details);
+  if(chart.pillars){
+    const pillars=el('div','center-pillars');pillars.append(el('small','','節氣四柱'));
+    for(const pair of chart.pillars.trim().split(/\s+/).filter(part=>/^[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]$/.test(part)))pillars.append(el('b','',pair));
+    center.append(pillars);
+  }
   const centerFlight=el('div','center-flight');centerFlight.id='center-flight';center.append(centerFlight);
-  center.append(el('p','center-note',chart.verified?'宮位與星曜依匯入的文墨文字盤顯示；點宮位查看宮干飛化。原有的 ↑↓ 標記仍照錄，不當作新推算結果。':'依輸入鐘錶時間試排；閏月、晚子時、真太陽時與文墨設定可能不同，請以文墨原盤核對。'));
+  center.append(el('p','center-note',chart.verified?'宮位星曜依匯入文字盤；點宮位查看宮干飛化。':'開源規則參考盤；請與文墨原盤核對設定。'));
   frag.append(center);
   const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.classList.add('fly-lines');svg.setAttribute('aria-hidden','true');frag.append(svg);
   ui.grid.replaceChildren(frag);
   activeChart=chart;
   selectedBranch=chart.palaces.find(p=>p.name==='命')?.branch||chart.palaces[0]?.branch||'';
   selectPalace(chart,selectedBranch);
+  renderTimeline(chart);
+  requestAnimationFrame(updateBoardMode);
 }
 function renderFilters(){
   const previous=ui.filter.value;
