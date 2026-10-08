@@ -103,7 +103,6 @@ body.fullbook-mode #toc-open{display:none}
 .reader-nav button:hover:not(:disabled){background:var(--gold);color:var(--bg)}
 .reader-nav button:disabled{opacity:.38;cursor:not-allowed}
 .reader-nav span{color:var(--muted);font-size:.92rem;text-align:center}
-.scope-note{border-top:1px solid var(--line);padding-top:18px;color:var(--muted);font-size:.9rem;line-height:1.7}
 .help-dialog{max-width:min(600px,calc(100vw - 28px));border:1px solid var(--gold);border-radius:14px;background:var(--panel);color:var(--ink);padding:23px 27px;box-shadow:0 25px 80px #0009}
 .help-dialog::backdrop{background:#090512b8}
 .dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px}

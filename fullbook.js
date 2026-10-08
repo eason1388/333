@@ -73,7 +73,7 @@ function render(data,mode='fullbook',translation=null,originalData=data){
   textRoot.replaceChildren(book);
   kicker.textContent=explained?'ORIGINAL & EXPLANATION · THREE VOLUMES':'ORIGINAL TEXT · THREE VOLUMES';
   heading.textContent=explained?'《紫微斗數全書》逐段白話':'《紫微斗數全書》原文';
-  intro.textContent=explained?'卷一至卷三依原書次序閱讀，每段原文後接白話。巨門篇有兩處依讀者要求刪節；需核對無刪原文，請點各卷的維基文庫底本。':'卷一至卷三依篇章次序閱讀，不按主星拆句。巨門篇有兩處依讀者要求刪節；需核對無刪原文，請點各卷的維基文庫底本。';
+  intro.textContent=explained?'卷一至卷三依原書次序閱讀，每段原文後接白話。':'卷一至卷三依篇章次序閱讀，不按主星拆句。';
   toc.open=window.matchMedia('(min-width: 800px)').matches;
 }
 toc.addEventListener('click',event=>{

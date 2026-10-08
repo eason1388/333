@@ -1,5 +1,5 @@
 const $=id=>document.getElementById(id);
-const ui={stars:$('star-strip'),list:$('entry-list'),count:$('result-count'),search:$('search'),groups:$('group-filter'),heading:$('reader-heading'),counter:$('reader-counter'),source:$('source-line'),passages:$('passages'),pageCount:$('page-count'),scope:$('scope-note'),prev:$('prev-entry'),next:$('next-entry'),toc:$('toc'),scrim:$('mobile-scrim'),dialog:$('help-dialog')};
+const ui={stars:$('star-strip'),list:$('entry-list'),count:$('result-count'),search:$('search'),groups:$('group-filter'),heading:$('reader-heading'),counter:$('reader-counter'),source:$('source-line'),passages:$('passages'),pageCount:$('page-count'),prev:$('prev-entry'),next:$('next-entry'),toc:$('toc'),scrim:$('mobile-scrim'),dialog:$('help-dialog')};
 const savedScale=Number(localStorage.getItem('ziwei-reader-scale'))||1;
 const state={data:null,entries:[],visible:[],star:localStorage.getItem('ziwei-reader-star')||'紫微',group:'all',query:'',selected:localStorage.getItem('ziwei-reader-last')||'',scale:Math.min(1.45,Math.max(.9,savedScale))};
 
@@ -48,7 +48,7 @@ function selectEntry(id,moveFocus=false){
 }
 function renderReader(){
   const entry=activeEntry();
-  if(!entry){ui.heading.replaceChildren(create('span','eyebrow','SEARCH'),create('h1','',state.query?'找不到符合的原句':'請從目錄選擇原句'));ui.counter.textContent='';ui.source.textContent='';ui.passages.replaceChildren();ui.pageCount.textContent='';ui.prev.disabled=true;ui.next.disabled=true;ui.scope.textContent=state.data?.scope||'';return;}
+  if(!entry){ui.heading.replaceChildren(create('span','eyebrow','SEARCH'),create('h1','',state.query?'找不到符合的原句':'請從目錄選擇原句'));ui.counter.textContent='';ui.source.textContent='';ui.passages.replaceChildren();ui.pageCount.textContent='';ui.prev.disabled=true;ui.next.disabled=true;return;}
   const withinStar=entry.group==='dedicated'?entry.number:state.data.stars.find(s=>s.name===entry.star).dedicated+entry.number;
   ui.heading.replaceChildren(create('span','eyebrow',`${entry.vol} · ${entry.chapter}`),create('h1','',`${entry.star}｜${groupName(entry.group)} ${entry.number}`));
   const position=state.visible.findIndex(e=>e.id===entry.id);
@@ -64,7 +64,6 @@ function renderReader(){
   ui.passages.replaceChildren(frag);
   ui.pageCount.textContent=`${entry.star} · ${withinStar} / ${state.data.stars.find(s=>s.name===entry.star).entries.length}`;
   ui.prev.disabled=position<=0;ui.next.disabled=position>=state.visible.length-1;
-  ui.scope.textContent=state.data.scope;
 }
 function step(delta){const at=state.visible.findIndex(entry=>entry.id===state.selected);const next=state.visible[at+delta];if(next)selectEntry(next.id,true);}
 
