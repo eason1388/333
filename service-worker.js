@@ -1,4 +1,4 @@
-const CACHE='ziwei-reader-v28';
+const CACHE='ziwei-reader-v29';
 const ASSETS=['./','./index.html','./styles.css','./app.js','./fullbook.js','./fullbook.json','./fullbook-units.json','./fullbook-explanations.json','./chart-ui.js','./chart-match.js','./palace-flight.js','./vendor/iztro-2.6.1.min.js','./content.json','./manifest.webmanifest','./icon.svg','./apple-touch-icon.png'];
 self.addEventListener('install',event=>{
   event.waitUntil((async()=>{const cache=await caches.open(CACHE);for(const asset of ASSETS){try{const response=await fetch(asset,{credentials:'same-origin'});if(response.ok&&new URL(response.url).origin===self.location.origin)await cache.put(asset,response.clone());}catch{}}await self.skipWaiting();})());
