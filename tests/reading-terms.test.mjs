@@ -14,6 +14,19 @@ test('financial patterns identify both the star and the exact palace arrangement
   assert.match(pattern,/武曲守命/);
 });
 
+test('Lianzhen-Qisha locations and the dark-star identity are explicit',async()=>{
+  const found=getReadingTerms('七殺與廉貞同位，破軍暗曜同鄉，帝遇凶徒。');
+  assert.match(found.find(x=>x.term==='廉貞、七殺同宮').meaning,/丑宮、未宮/);
+  assert.match(found.find(x=>x.term==='暗曜／暗巨').meaning,/巨門/);
+  assert.match(found.find(x=>x.term==='暗曜／暗巨').meaning,/不會同宮/);
+  assert.match(found.find(x=>x.term==='惡曜／凶曜').meaning,/擎羊、陀羅、火星、鈴星/);
+  const book=JSON.parse(await readFile(new URL('../fullbook-explanations.json',import.meta.url),'utf8'));
+  const text=book.entries['v一-2-b3-p4'].plain;
+  assert.match(text,/（兩星固定在丑宮或未宮同宮/);
+  assert(!/教學時要先|不能照字面斷人必死/.test(text));
+  assert(!Object.values(book.entries).some(e=>/不應單憑一句對某人作私德判決/.test(e.plain)));
+});
+
 test('palace addresses, palace topics and geometric relations stay distinct',()=>{
   const found=getReadingTerms('命宮在子，財帛宮在申；三方四正、對宮、夾命、同宮。');
   for(const term of ['命宮','財帛宮','人事宮與地支宮','三方四正','對宮／沖照','夾宮','同宮／同垣'])assert(found.some(x=>x.term===term),term);
