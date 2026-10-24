@@ -98,6 +98,13 @@ body.fullbook-mode #toc-open{display:none}
 .fullbook-pair .fullbook-diagram{margin:13px 24px 20px}
 .fullbook-pair .explanation-label{border-top:1px solid var(--line);background:var(--panel-2);color:var(--cyan);padding-top:18px}
 .fullbook-explanation{margin:0;padding:12px 24px 24px;background:var(--panel-2);font-size:calc(1.13rem * var(--scale));line-height:1.83;white-space:pre-wrap;overflow-wrap:anywhere}
+.reading-terms{border-top:1px solid var(--line);padding-top:16px;font-size:calc(1.03rem * var(--scale));line-height:1.8;overflow-wrap:anywhere}
+.reading-terms h4{margin:0 0 12px;color:var(--cyan);font-size:1em}
+.reading-terms dl{margin:0;display:grid;grid-template-columns:minmax(8em,1fr) minmax(0,4fr);gap:12px 18px}
+.reading-terms dt{color:var(--gold);font-weight:700}
+.reading-terms dd{margin:0;min-width:0}
+.fullbook-pair>.reading-terms{padding:18px 24px 24px;background:var(--panel-2)}
+@media(max-width:600px){.reading-terms dl{grid-template-columns:minmax(0,1fr);gap:4px}.reading-terms dd{margin-bottom:12px}.fullbook-pair>.reading-terms{padding:16px 17px 20px}}
 .reader-nav{display:flex;justify-content:space-between;align-items:center;gap:18px;border-top:1px solid var(--line);padding:27px 0 18px;margin-top:29px}
 .reader-nav button{border:1px solid var(--gold);background:transparent;color:var(--gold);border-radius:8px;padding:11px 20px;min-height:45px;font-weight:700}
 .reader-nav button:hover:not(:disabled){background:var(--gold);color:var(--bg)}

@@ -1,3 +1,5 @@
+import {appendReadingTerms} from './reading-terms.js';
+
 const $=id=>document.getElementById(id);
 const ui={stars:$('star-strip'),list:$('entry-list'),count:$('result-count'),search:$('search'),groups:$('group-filter'),heading:$('reader-heading'),counter:$('reader-counter'),source:$('source-line'),passages:$('passages'),pageCount:$('page-count'),prev:$('prev-entry'),next:$('next-entry'),toc:$('toc'),scrim:$('mobile-scrim'),dialog:$('help-dialog')};
 const savedScale=Number(localStorage.getItem('ziwei-reader-scale'))||1;
@@ -59,6 +61,7 @@ function renderReader(){
     const row=create('section','passage');row.setAttribute('aria-label',`第 ${i+1} 段`);
     const quote=create('div','quote-card');quote.append(create('span','part-number',`原文 ${String(i+1).padStart(2,'0')} / ${String(entry.parts.length).padStart(2,'0')}`),create('div','',part.original));
     const explanation=create('div','explain-card');explanation.append(create('h3','','白話翻譯'),create('p','',part.plain),create('h3','','判斷條件與使用方法'),create('p','reading-method',part.read));
+    appendReadingTerms(explanation,`${part.original}\n${part.plain}\n${part.read}`);
     row.append(quote,explanation);frag.append(row);
   });
   ui.passages.replaceChildren(frag);

@@ -1,3 +1,5 @@
+import {appendReadingTerms} from './reading-terms.js';
+
 const textRoot=document.getElementById('fullbook-text');
 const linksRoot=document.getElementById('fullbook-links');
 const toc=document.getElementById('fullbook-toc');
@@ -51,10 +53,12 @@ function render(data,mode='fullbook',translation=null,originalData=data){
       if(explained){
         for(const unit of section.units){
           const pair=node('div','fullbook-pair');
+          pair.id=unit.id;
           pair.append(node('div','fullbook-pair-label','古籍原文'));
           pair.append(node(unit.type==='diagram'?'pre':'p',unit.type==='diagram'?'fullbook-diagram':'fullbook-paragraph',readingEdition(section.id,unit.original)));
           pair.append(node('div','fullbook-pair-label explanation-label','詳細白話'));
           pair.append(node('p','fullbook-explanation',translation.entries[unit.id].plain));
+          appendReadingTerms(pair,`${unit.original}\n${translation.entries[unit.id].plain}`);
           sectionNode.append(pair);
         }
       }else{
