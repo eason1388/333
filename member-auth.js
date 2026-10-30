@@ -6,7 +6,19 @@ const numberInput=document.querySelector('#member-number');
 const passwordInput=document.querySelector('#member-password');
 const message=document.querySelector('#member-login-message');
 const accountNumber=document.querySelector('#member-account-number');
+const courseList=document.querySelector('#member-course-list');
 const storageKey='ziwei-member-session';
+const courseSlides=[29,28,28,25,39,29,31,20,19,16,23,22,17,16,19,16,16,17,17,21];
+
+courseSlides.forEach((slideCount,index)=>{
+  const lesson=index+1;
+  const link=document.createElement('a');
+  link.className='member-course-link';
+  link.href=`./courses/ziwei-lesson-${String(lesson).padStart(2,'0')}.pptx`;
+  link.download=`紫微斗數_第${lesson}堂_學生版_大字詳解_v2.pptx`;
+  link.innerHTML=`<span><strong>第 ${lesson} 堂</strong><small>${slideCount} 張投影片</small></span><span>下載 PPTX</span>`;
+  courseList.append(link);
+});
 
 function currentMember(){
   try{
