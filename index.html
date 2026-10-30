@@ -34,6 +34,7 @@
       <button type="button" id="view-explained">逐段白話</button>
       <button type="button" id="view-chart">命盤核對</button>
       <button type="button" id="view-astrolabe">十二宮排盤</button>
+      <button class="member-login-button" type="button" id="member-login-open" aria-haspopup="dialog">會員登入</button>
     </nav>
 
     <div class="star-strip" id="star-strip" role="navigation" aria-label="十四主星"></div>
@@ -163,8 +164,27 @@
     <p>「十二宮排盤」以傳統十二宮方盤顯示宮干、地支、星曜、生年四化、大限及小限。點選宮格，可看它的宮干化祿、化權、化科、化忌飛入何宮與自化；彩色線條標出方向。匯入文墨文字盤後，也顯示其中的流年歲數與飛化標記，若文字盤列有流年四化，會優先採用其四化星對應。單憑出生資料排出的是開源規則參考盤，並非文墨天機軟體的完全同款演算法。</p>
     <p class="install-tip">iPhone 可在 Safari 的「分享」選單選擇「加入主畫面」，像 App 一樣開啟。</p>
   </dialog>
+  <dialog id="member-login-dialog" class="member-login-dialog" aria-labelledby="member-login-title">
+    <form class="member-login-form" id="member-login-form">
+      <div class="dialog-head">
+        <div><span class="eyebrow">MEMBER ACCESS</span><h2 id="member-login-title">會員登入</h2></div>
+        <button type="button" id="member-login-close" aria-label="關閉會員登入">關閉</button>
+      </div>
+      <p class="member-login-intro">請輸入會員編號與密碼。</p>
+      <label>會員編號<input id="member-number" name="username" type="text" inputmode="numeric" autocomplete="username" maxlength="5" required></label>
+      <label>密碼<input id="member-password" name="password" type="password" autocomplete="current-password" maxlength="6" required></label>
+      <p class="member-login-message" id="member-login-message" role="status" aria-live="polite"></p>
+      <button class="member-login-submit" type="submit">登入</button>
+    </form>
+    <section class="member-account" id="member-account" hidden>
+      <div class="dialog-head"><h2>會員中心</h2><button type="button" id="member-account-close" aria-label="關閉會員中心">關閉</button></div>
+      <div class="member-welcome"><span class="member-avatar" aria-hidden="true">紫</span><div><small>已登入會員</small><strong id="member-account-number"></strong></div></div>
+      <button class="member-logout" id="member-logout" type="button">登出</button>
+    </section>
+  </dialog>
   <script type="module" src="./app.js"></script>
   <script type="module" src="./fullbook.js"></script>
   <script type="module" src="./chart-ui.js"></script>
+  <script type="module" src="./member-auth.js"></script>
 </body>
 </html>

@@ -20,6 +20,8 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--cyan);outline-o
 .view-tabs button{border:0;border-bottom:3px solid transparent;padding:12px 19px 10px;background:transparent;color:var(--muted);font-size:1rem;min-height:47px}
 .view-tabs button[aria-current="page"]{border-bottom-color:var(--gold);color:var(--gold);font-weight:700}
 .view-tabs button:hover{color:var(--ink)}
+.view-tabs .member-login-button{margin-left:auto;align-self:center;border:1px solid var(--gold);border-radius:8px;padding:8px 17px;min-height:38px;color:var(--gold);font-weight:700;white-space:nowrap}
+.view-tabs .member-login-button:hover,.view-tabs .member-login-button[data-logged-in="true"]{background:var(--gold);color:var(--bg)}
 body.chart-mode #toc-open,body.chart-mode #font-down,body.chart-mode #font-up{display:none}
 body.fullbook-mode #toc-open{display:none}
 [hidden]{display:none!important}
@@ -164,6 +166,25 @@ body.fullbook-mode #toc-open{display:none}
 .chart-scroll-hint{margin:0 0 9px;color:var(--muted);font-size:.9rem}.astrolabe-mode #match-section{display:none}
 @media(max-width:1350px){.chart-layout{grid-template-columns:minmax(0,1fr)}.chart-inputs{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){.view-tabs{overflow-x:auto;justify-content:flex-start;scrollbar-width:thin}.view-tabs button{flex:0 0 auto;min-width:92px;padding-inline:10px;font-size:.88rem}.chart-inputs{grid-template-columns:minmax(0,1fr)}.chart-board{min-width:920px}.chart-scroll-hint{font-size:.85rem}}
+
+.member-login-dialog{width:min(430px,calc(100% - 30px));border:1px solid var(--line);border-radius:14px;padding:0;background:#211a35;color:var(--ink);box-shadow:0 24px 70px #090611cc}
+.member-login-dialog::backdrop{background:#090611b8;backdrop-filter:blur(3px)}
+.member-login-form,.member-account{padding:25px}
+.member-login-dialog .dialog-head{align-items:flex-start;margin-bottom:20px}
+.member-login-dialog .dialog-head h2{margin:5px 0 0;font-size:1.65rem}
+.member-login-dialog .dialog-head button,.member-logout{border:1px solid var(--line);border-radius:7px;background:transparent;color:var(--muted);padding:8px 13px}
+.member-login-intro{margin:0 0 18px;color:var(--muted)}
+.member-login-form>label{display:grid;gap:7px;margin-top:14px;color:var(--gold);font-weight:700}
+.member-login-form input{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:8px;background:#171225;color:var(--ink);padding:12px 13px;font:inherit;outline:none}
+.member-login-form input:focus{border-color:var(--gold);box-shadow:0 0 0 3px #eac57820}
+.member-login-message{min-height:1.5em;margin:12px 0 4px;color:#ffaaa2;font-size:.9rem}
+.member-login-message.success{color:#a7dfbc}
+.member-login-submit{width:100%;border:1px solid var(--gold);border-radius:8px;background:var(--gold);color:var(--bg);padding:12px;font-weight:800;font-size:1rem}
+.member-welcome{display:flex;align-items:center;gap:15px;margin:24px 0;padding:18px;border:1px solid var(--line);border-radius:10px;background:#171225}
+.member-avatar{display:grid;place-items:center;width:48px;height:48px;border:1px solid var(--gold);border-radius:50%;color:var(--gold);font-family:"Songti TC","PMingLiU",serif;font-size:1.5rem}
+.member-welcome div{display:grid;gap:4px}.member-welcome small{color:var(--muted)}.member-welcome strong{color:var(--gold);font-size:1.25rem;letter-spacing:.08em}
+.member-logout{width:100%;color:var(--ink)}
+@media(max-width:700px){.view-tabs .member-login-button{margin-left:4px;padding:8px 13px;min-width:auto}.member-login-form,.member-account{padding:21px}}
 .astrolabe-mode .chart-workspace{padding-top:18px}.astrolabe-mode .chart-title{max-width:none;margin-bottom:15px}.astrolabe-mode .chart-title h1{font-size:clamp(1.75rem,2.4vw,2.35rem);margin:3px 0 5px}.astrolabe-mode .chart-title p{font-size:.93rem}
 .astrolabe-mode .chart-layout{grid-template-columns:minmax(0,1fr)}.astrolabe-mode .chart-inputs{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.astrolabe-mode .chart-panel{padding:14px 18px}.astrolabe-mode .chart-panel h2{margin-bottom:9px;font-size:1.1rem}.astrolabe-mode .chart-panel p{font-size:.84rem;margin-bottom:7px}.astrolabe-mode .chart-form{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.astrolabe-mode .chart-form label:nth-child(2){grid-column:auto}.astrolabe-mode .chart-form .primary-action{grid-column:span 4}.astrolabe-mode .wenmo-panel textarea{min-height:91px}.astrolabe-mode .wenmo-actions{margin-top:7px}.astrolabe-mode .chart-status{padding:10px 14px;margin-bottom:9px}.astrolabe-mode .chart-summary{padding:11px 15px;margin-bottom:10px}.astrolabe-mode .chart-summary p{margin-top:3px}.astrolabe-mode .chart-board-scroll{border-radius:3px;background:#fff;border-color:#8d8d8d;box-shadow:none}.astrolabe-mode .chart-board{min-width:980px;background:#fff;color:#1d2634;grid-template-rows:repeat(4,minmax(174px,auto))}
 .astrolabe-mode .chart-board .palace-tile{min-height:174px;padding:9px 11px;background:#fff;border-color:#aaa}.astrolabe-mode .chart-center{background:#fff;border-color:#aaa}.astrolabe-mode .chart-board .palace-head{margin-bottom:5px}.astrolabe-mode .chart-board .palace-head span{color:#b44737}.astrolabe-mode .chart-board .palace-head b{color:#202020}.astrolabe-mode .palace-footer{border-top-color:#ddd}.astrolabe-mode .chart-board .palace-tile:hover{background:#f5f3ff}.chart-board .palace-tile{cursor:pointer;outline-offset:-4px}.chart-board .palace-tile:focus-visible{outline:3px solid #316fc0}.chart-board .palace-tile.palace-selected{background:#f2f0fb;box-shadow:inset 0 0 0 3px #6b54bc}.chart-board .palace-tile.palace-target:not(.palace-selected){box-shadow:inset 0 0 0 2px #a9a1d0}.chart-board .flight-star-selected{background:#fff3c9;border-radius:3px;padding-inline:3px;color:#202020;font-weight:800}
