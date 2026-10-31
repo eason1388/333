@@ -178,11 +178,20 @@
     </form>
     <section class="member-account" id="member-account" hidden>
       <div class="dialog-head"><h2>會員中心</h2><button type="button" id="member-account-close" aria-label="關閉會員中心">關閉</button></div>
-      <div class="member-welcome"><span class="member-avatar" aria-hidden="true">紫</span><div><small>已登入會員</small><strong id="member-account-number"></strong></div></div>
-      <div class="member-library">
+      <div class="member-welcome" id="member-welcome"><span class="member-avatar" aria-hidden="true">紫</span><div><small>已登入會員</small><strong id="member-account-number"></strong></div></div>
+      <div class="member-library" id="member-library">
         <div class="member-library-head"><div><span class="eyebrow">MEMBER COURSES</span><h3>紫微斗數學生版教材</h3></div><span>共 20 堂</span></div>
         <div class="member-course-list" id="member-course-list"></div>
       </div>
+      <section class="member-course-viewer" id="member-course-viewer" hidden>
+        <div class="course-viewer-head">
+          <button type="button" id="course-viewer-back">返回課程列表</button>
+          <div><span class="eyebrow">ONLINE READING</span><h3 id="course-viewer-title"></h3></div>
+          <a id="course-viewer-download" href="">下載 PPTX</a>
+        </div>
+        <iframe id="course-viewer-frame" title="課程投影片線上閱讀" loading="lazy"></iframe>
+        <p>可在上方直接翻頁閱讀；若瀏覽器未顯示，請 <a id="course-viewer-new-tab" href="" target="_blank" rel="noopener">另開全螢幕閱讀</a>。</p>
+      </section>
       <button class="member-logout" id="member-logout" type="button">登出</button>
     </section>
   </dialog>
