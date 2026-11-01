@@ -2,10 +2,15 @@ const openButton=document.querySelector('#member-login-open');
 const dialog=document.querySelector('#member-login-dialog');
 const loginForm=document.querySelector('#member-login-form');
 const accountPanel=document.querySelector('#member-account');
+const loginTitle=document.querySelector('#member-login-title');
+const loginIntro=document.querySelector('#member-login-intro');
 const numberInput=document.querySelector('#member-number');
 const passwordInput=document.querySelector('#member-password');
 const message=document.querySelector('#member-login-message');
 const accountNumber=document.querySelector('#member-account-number');
+const accountHeading=document.querySelector('#member-account-heading');
+const accountLabel=document.querySelector('#member-account-label');
+const memberAvatar=document.querySelector('#member-avatar');
 const courseList=document.querySelector('#member-course-list');
 const memberWelcome=document.querySelector('#member-welcome');
 const memberLibrary=document.querySelector('#member-library');
@@ -15,7 +20,15 @@ const courseViewerFrame=document.querySelector('#course-viewer-frame');
 const courseViewerDownload=document.querySelector('#course-viewer-download');
 const courseViewerNewTab=document.querySelector('#course-viewer-new-tab');
 const logoutButton=document.querySelector('#member-logout');
-const storageKey='ziwei-member-session';
+const emptyPortal=document.querySelector('#member-empty-portal');
+const emptySymbol=document.querySelector('#member-empty-symbol');
+const emptyTitle=document.querySelector('#member-empty-title');
+const portalConfigs={
+  ziwei:{name:'紫微斗數',symbol:'紫',storageKey:'ziwei-member-session'},
+  bazi:{name:'八字',symbol:'八',storageKey:'bazi-member-session'},
+  fengshui:{name:'風水堪輿',symbol:'風',storageKey:'fengshui-member-session'}
+};
+let activePortal='ziwei';
 const courseSlides=[29,28,28,25,39,29,31,20,19,16,23,22,17,16,19,16,16,17,17,21];
 
 courseSlides.forEach((slideCount,index)=>{
@@ -52,23 +65,57 @@ function closeCourseViewer(){
 
 function currentMember(){
   try{
-    const value=JSON.parse(localStorage.getItem(storageKey));
+    const value=JSON.parse(localStorage.getItem(portalConfigs[activePortal].storageKey));
     return Number.isInteger(value?.memberNumber)&&value.memberNumber>=92575&&value.memberNumber<=93500?value.memberNumber:null;
   }catch{return null;}
+}
+
+function updatePortalCopy(){
+  const config=portalConfigs[activePortal];
+  loginTitle.textContent=`${config.name}會員登入`;
+  loginIntro.textContent=`請輸入${config.name}會員編號與密碼。`;
+  accountHeading.textContent=`${config.name}會員中心`;
+  accountLabel.textContent=`已登入${config.name}會員`;
+  memberAvatar.textContent=config.symbol;
+  emptySymbol.textContent=config.symbol;
+  emptyTitle.textContent=`${config.name}會員專區`;
+  logoutButton.textContent=`登出${config.name}會員`;
+  document.querySelectorAll('[data-portal]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.portal===activePortal)));
 }
 
 function updateMemberState(){
   const memberNumber=currentMember();
   const loggedIn=memberNumber!==null;
-  openButton.dataset.loggedIn=String(loggedIn);
-  openButton.textContent=loggedIn?'會員中心':'會員登入';
-  openButton.setAttribute('aria-label',loggedIn?`已登入會員 ${memberNumber}，開啟會員中心`:'會員登入');
+  const hasAnySession=Object.values(portalConfigs).some(config=>{
+    try{return Boolean(JSON.parse(localStorage.getItem(config.storageKey))?.memberNumber);}catch{return false;}
+  });
+  openButton.dataset.loggedIn=String(hasAnySession);
+  openButton.textContent=hasAnySession?'會員中心':'會員登入';
+  openButton.setAttribute('aria-label',loggedIn?`已登入${portalConfigs[activePortal].name}會員 ${memberNumber}，開啟會員中心`:(hasAnySession?'開啟會員中心':'會員登入'));
   loginForm.hidden=loggedIn;
   accountPanel.hidden=!loggedIn;
   accountNumber.textContent=loggedIn?String(memberNumber):'';
+  if(loggedIn){
+    const isZiwei=activePortal==='ziwei';
+    memberLibrary.hidden=!isZiwei;
+    emptyPortal.hidden=isZiwei;
+  }
+}
+
+function switchPortal(portal){
+  if(!portalConfigs[portal])return;
+  closeCourseViewer();
+  activePortal=portal;
+  numberInput.value='';
+  passwordInput.value='';
+  message.textContent='';
+  updatePortalCopy();
+  updateMemberState();
+  if(!currentMember())requestAnimationFrame(()=>numberInput.focus());
 }
 
 function openDialog(){
+  updatePortalCopy();
   updateMemberState();
   message.textContent='';
   message.classList.remove('success');
@@ -82,6 +129,7 @@ openButton.addEventListener('click',openDialog);
 document.querySelector('#member-login-close').addEventListener('click',closeDialog);
 document.querySelector('#member-account-close').addEventListener('click',closeDialog);
 document.querySelector('#course-viewer-back').addEventListener('click',closeCourseViewer);
+document.querySelectorAll('[data-portal]').forEach(button=>button.addEventListener('click',()=>switchPortal(button.dataset.portal)));
 dialog.addEventListener('click',event=>{if(event.target===dialog)closeDialog();});
 
 loginForm.addEventListener('submit',event=>{
@@ -100,7 +148,7 @@ loginForm.addEventListener('submit',event=>{
     return;
   }
 
-  localStorage.setItem(storageKey,JSON.stringify({memberNumber}));
+  localStorage.setItem(portalConfigs[activePortal].storageKey,JSON.stringify({memberNumber}));
   message.textContent='登入成功。';
   message.classList.add('success');
   passwordInput.value='';
@@ -108,11 +156,12 @@ loginForm.addEventListener('submit',event=>{
 });
 
 logoutButton.addEventListener('click',()=>{
-  localStorage.removeItem(storageKey);
+  localStorage.removeItem(portalConfigs[activePortal].storageKey);
   numberInput.value='';
   passwordInput.value='';
   updateMemberState();
   closeDialog();
 });
 
+updatePortalCopy();
 updateMemberState();
