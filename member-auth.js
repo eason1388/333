@@ -6,6 +6,7 @@ const loginTitle=document.querySelector('#member-login-title');
 const loginIntro=document.querySelector('#member-login-intro');
 const numberInput=document.querySelector('#member-number');
 const passwordInput=document.querySelector('#member-password');
+const loginSubmit=document.querySelector('#member-login-submit');
 const message=document.querySelector('#member-login-message');
 const accountNumber=document.querySelector('#member-account-number');
 const accountHeading=document.querySelector('#member-account-heading');
@@ -24,7 +25,7 @@ const emptyPortal=document.querySelector('#member-empty-portal');
 const emptySymbol=document.querySelector('#member-empty-symbol');
 const emptyTitle=document.querySelector('#member-empty-title');
 const portalConfigs={
-  ziwei:{name:'紫微斗數',symbol:'紫',storageKey:'ziwei-member-session'},
+  ziwei:{name:'紫微斗數',symbol:'紫',storageKey:'ziwei-member-session',memberStart:92575,memberEnd:93500,passwordPrefix:'ab',passwordStart:8991,authVersion:'ziwei-sequential-v1'},
   bazi:{name:'八字',symbol:'八',storageKey:'bazi-member-session'},
   fengshui:{name:'風水堪輿',symbol:'風',storageKey:'fengshui-member-session'}
 };
@@ -65,15 +66,22 @@ function closeCourseViewer(){
 
 function currentMember(){
   try{
-    const value=JSON.parse(localStorage.getItem(portalConfigs[activePortal].storageKey));
-    return Number.isInteger(value?.memberNumber)&&value.memberNumber>=92575&&value.memberNumber<=93500?value.memberNumber:null;
+    const config=portalConfigs[activePortal];
+    if(!config.authVersion)return null;
+    const value=JSON.parse(localStorage.getItem(config.storageKey));
+    return value?.authVersion===config.authVersion&&Number.isInteger(value?.memberNumber)&&value.memberNumber>=config.memberStart&&value.memberNumber<=config.memberEnd?value.memberNumber:null;
   }catch{return null;}
 }
 
 function updatePortalCopy(){
   const config=portalConfigs[activePortal];
   loginTitle.textContent=`${config.name}會員登入`;
-  loginIntro.textContent=`請輸入${config.name}會員編號與密碼。`;
+  const configured=Boolean(config.authVersion);
+  loginIntro.textContent=configured?`請輸入${config.name}會員編號與密碼。`:`${config.name}會員帳密尚未設定。`;
+  numberInput.disabled=!configured;
+  passwordInput.disabled=!configured;
+  loginSubmit.disabled=!configured;
+  loginSubmit.textContent=configured?'登入':'帳密尚未設定';
   accountHeading.textContent=`${config.name}會員中心`;
   accountLabel.textContent=`已登入${config.name}會員`;
   memberAvatar.textContent=config.symbol;
@@ -87,7 +95,7 @@ function updateMemberState(){
   const memberNumber=currentMember();
   const loggedIn=memberNumber!==null;
   const hasAnySession=Object.values(portalConfigs).some(config=>{
-    try{return Boolean(JSON.parse(localStorage.getItem(config.storageKey))?.memberNumber);}catch{return false;}
+    try{const value=JSON.parse(localStorage.getItem(config.storageKey));return Boolean(config.authVersion&&value?.authVersion===config.authVersion&&value?.memberNumber);}catch{return false;}
   });
   openButton.dataset.loggedIn=String(hasAnySession);
   openButton.textContent=hasAnySession?'會員中心':'會員登入';
@@ -134,12 +142,16 @@ dialog.addEventListener('click',event=>{if(event.target===dialog)closeDialog();}
 
 loginForm.addEventListener('submit',event=>{
   event.preventDefault();
+  const config=portalConfigs[activePortal];
+  if(!config.authVersion){
+    message.textContent=`${config.name}會員帳密尚未設定。`;
+    return;
+  }
   const memberNumber=Number(numberInput.value.trim());
   const password=passwordInput.value.trim();
-  const passwordMatch=/^ab(\d{4})$/.exec(password);
-  const validNumber=/^\d{5}$/.test(numberInput.value.trim())&&memberNumber>=92575&&memberNumber<=93500;
-  const passwordNumber=passwordMatch?Number(passwordMatch[1]):NaN;
-  const validPassword=passwordNumber>=8991&&passwordNumber<=9991;
+  const validNumber=/^\d+$/.test(numberInput.value.trim())&&memberNumber>=config.memberStart&&memberNumber<=config.memberEnd;
+  const expectedPassword=`${config.passwordPrefix}${String(config.passwordStart+(memberNumber-config.memberStart)).padStart(4,'0')}`;
+  const validPassword=password===expectedPassword;
 
   if(!validNumber||!validPassword){
     message.textContent='會員編號或密碼不正確，請重新輸入。';
@@ -148,7 +160,7 @@ loginForm.addEventListener('submit',event=>{
     return;
   }
 
-  localStorage.setItem(portalConfigs[activePortal].storageKey,JSON.stringify({memberNumber}));
+  localStorage.setItem(config.storageKey,JSON.stringify({memberNumber,authVersion:config.authVersion}));
   message.textContent='登入成功。';
   message.classList.add('success');
   passwordInput.value='';

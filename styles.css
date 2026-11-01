@@ -182,6 +182,7 @@ body.fullbook-mode #toc-open{display:none}
 .member-login-message{min-height:1.5em;margin:12px 0 4px;color:#ffaaa2;font-size:.9rem}
 .member-login-message.success{color:#a7dfbc}
 .member-login-submit{width:100%;border:1px solid var(--gold);border-radius:8px;background:var(--gold);color:var(--bg);padding:12px;font-weight:800;font-size:1rem}
+.member-login-submit:disabled,.member-login-form input:disabled{cursor:not-allowed;opacity:.55}
 .member-welcome{display:flex;align-items:center;gap:15px;margin:24px 0;padding:18px;border:1px solid var(--line);border-radius:10px;background:#171225}
 .member-avatar{display:grid;place-items:center;width:48px;height:48px;border:1px solid var(--gold);border-radius:50%;color:var(--gold);font-family:"Songti TC","PMingLiU",serif;font-size:1.5rem}
 .member-welcome div{display:grid;gap:4px}.member-welcome small{color:var(--muted)}.member-welcome strong{color:var(--gold);font-size:1.25rem;letter-spacing:.08em}
