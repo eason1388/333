@@ -1,3 +1,5 @@
+import {portalConfigs,validateCredentials} from './member-credentials.mjs';
+
 const openButton=document.querySelector('#member-login-open');
 const dialog=document.querySelector('#member-login-dialog');
 const loginForm=document.querySelector('#member-login-form');
@@ -24,11 +26,6 @@ const logoutButton=document.querySelector('#member-logout');
 const emptyPortal=document.querySelector('#member-empty-portal');
 const emptySymbol=document.querySelector('#member-empty-symbol');
 const emptyTitle=document.querySelector('#member-empty-title');
-const portalConfigs={
-  ziwei:{name:'紫微斗數',symbol:'紫',storageKey:'ziwei-member-session',memberStart:92575,memberEnd:93500,passwordPrefix:'ab',passwordStart:8991,authVersion:'ziwei-sequential-v1'},
-  bazi:{name:'八字',symbol:'八',storageKey:'bazi-member-session'},
-  fengshui:{name:'風水堪輿',symbol:'風',storageKey:'fengshui-member-session'}
-};
 let activePortal='ziwei';
 const courseSlides=[29,28,28,25,39,29,31,20,19,16,23,22,17,16,19,16,16,17,17,21];
 
@@ -147,13 +144,10 @@ loginForm.addEventListener('submit',event=>{
     message.textContent=`${config.name}會員帳密尚未設定。`;
     return;
   }
-  const memberNumber=Number(numberInput.value.trim());
   const password=passwordInput.value.trim();
-  const validNumber=/^\d+$/.test(numberInput.value.trim())&&memberNumber>=config.memberStart&&memberNumber<=config.memberEnd;
-  const expectedPassword=`${config.passwordPrefix}${String(config.passwordStart+(memberNumber-config.memberStart)).padStart(4,'0')}`;
-  const validPassword=password===expectedPassword;
+  const memberNumber=validateCredentials(activePortal,numberInput.value,password);
 
-  if(!validNumber||!validPassword){
+  if(memberNumber===null){
     message.textContent='會員編號或密碼不正確，請重新輸入。';
     message.classList.remove('success');
     passwordInput.select();
