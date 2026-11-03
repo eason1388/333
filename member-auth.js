@@ -21,7 +21,7 @@ const courseViewer=document.querySelector('#member-course-viewer');
 const courseViewerTitle=document.querySelector('#course-viewer-title');
 const courseViewerFrame=document.querySelector('#course-viewer-frame');
 const courseViewerDownload=document.querySelector('#course-viewer-download');
-const courseViewerNewTab=document.querySelector('#course-viewer-new-tab');
+const courseViewerFullscreen=document.querySelector('#course-viewer-fullscreen');
 const logoutButton=document.querySelector('#member-logout');
 const emptyPortal=document.querySelector('#member-empty-portal');
 const emptySymbol=document.querySelector('#member-empty-symbol');
@@ -45,9 +45,9 @@ function openCourseViewer(lesson,fileStem){
   memberLibrary.hidden=true;
   logoutButton.hidden=true;
   courseViewer.hidden=false;
+  dialog.classList.add('course-reading');
   courseViewerTitle.textContent=`紫微斗數・第 ${lesson} 堂`;
   courseViewerFrame.src=`${pdfUrl}#view=FitH&toolbar=1&navpanes=0`;
-  courseViewerNewTab.href=pdfUrl;
   courseViewerDownload.href=`./courses/${fileStem}.pptx`;
   courseViewerDownload.download=`紫微斗數_第${lesson}堂_學生版_大字詳解_v2.pptx`;
   dialog.scrollTo({top:0,behavior:'smooth'});
@@ -56,6 +56,9 @@ function openCourseViewer(lesson,fileStem){
 function closeCourseViewer(){
   courseViewerFrame.removeAttribute('src');
   courseViewer.hidden=true;
+  dialog.classList.remove('course-reading','course-reading-fullscreen');
+  courseViewerFullscreen.textContent='全螢幕閱讀';
+  courseViewerFullscreen.setAttribute('aria-pressed','false');
   memberWelcome.hidden=false;
   memberLibrary.hidden=false;
   logoutButton.hidden=false;
@@ -134,6 +137,13 @@ openButton.addEventListener('click',openDialog);
 document.querySelector('#member-login-close').addEventListener('click',closeDialog);
 document.querySelector('#member-account-close').addEventListener('click',closeDialog);
 document.querySelector('#course-viewer-back').addEventListener('click',closeCourseViewer);
+document.querySelector('#course-viewer-close').addEventListener('click',closeDialog);
+courseViewerFullscreen.addEventListener('click',()=>{
+  const isFullscreen=dialog.classList.toggle('course-reading-fullscreen');
+  courseViewerFullscreen.textContent=isFullscreen?'退出全螢幕':'全螢幕閱讀';
+  courseViewerFullscreen.setAttribute('aria-pressed',String(isFullscreen));
+  dialog.scrollTo({top:0,behavior:'smooth'});
+});
 document.querySelectorAll('[data-portal]').forEach(button=>button.addEventListener('click',()=>switchPortal(button.dataset.portal)));
 dialog.addEventListener('click',event=>{if(event.target===dialog)closeDialog();});
 

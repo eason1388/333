@@ -190,12 +190,15 @@
       </div>
       <section class="member-course-viewer" id="member-course-viewer" hidden>
         <div class="course-viewer-head">
-          <button type="button" id="course-viewer-back">返回課程列表</button>
           <div><span class="eyebrow">ONLINE READING</span><h3 id="course-viewer-title"></h3></div>
-          <a id="course-viewer-download" href="">下載 PPTX</a>
+          <div class="course-viewer-actions">
+            <button type="button" id="course-viewer-back">返回課程列表</button>
+            <a id="course-viewer-download" href="">下載 PPTX</a>
+            <button type="button" id="course-viewer-close">關閉</button>
+          </div>
         </div>
         <iframe id="course-viewer-frame" title="課程投影片線上閱讀" loading="lazy"></iframe>
-        <p>可在上方直接翻頁閱讀；若瀏覽器未顯示，請 <a id="course-viewer-new-tab" href="" target="_blank" rel="noopener">另開全螢幕閱讀</a>。</p>
+        <p>可在上方直接翻頁閱讀；需要放大時，請按 <button type="button" id="course-viewer-fullscreen">全螢幕閱讀</button>。</p>
       </section>
       <section class="member-empty-portal" id="member-empty-portal" hidden><span class="member-empty-symbol" id="member-empty-symbol">八</span><h3 id="member-empty-title">八字會員專區</h3><p>登入成功。此專區已建立，之後可加入課程、講義及線上閱讀內容。</p></section>
       <button class="member-logout" id="member-logout" type="button">登出</button>
